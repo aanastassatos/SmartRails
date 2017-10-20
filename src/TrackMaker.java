@@ -1,5 +1,5 @@
-package PACKAGE_NAME;
-
 public class TrackMaker
 {
+  char [][] trackMap = {{'@', '-', '-', '-', '-', '@'},
+                        {'@', '-', '*', '%', '*', '@'}};
 }

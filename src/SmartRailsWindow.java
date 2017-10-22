@@ -17,7 +17,7 @@ public class SmartRailsWindow extends Application
   public void start(Stage stage) throws Exception
   {
     TrackMaker track = new TrackMaker();
-    Canvas canvas = new Canvas(1600, 800);
+    Canvas canvas = new Canvas(1400, 800);
     track.makeTrack(canvas.getGraphicsContext2D());
     Scene scene = new Scene(new Group(canvas));
     stage.setScene(scene);

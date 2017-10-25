@@ -1,18 +1,30 @@
-public class Train
+import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+
+public class Train extends ImageView
 {
+  private final double IMAGE_SIZE = 200;
   private Track currentTrack;
   private  Direction direction;
+  private ImageView trainImage = new ImageView(res.ResourceLoader.getTrainImage("train.png", IMAGE_SIZE, IMAGE_SIZE, false, false));
+  private GraphicsContext gc;
   
-  public void moveTrain()
+  public Train(Station currentTrack)
   {
-    Track nextTrack = currentTrack.getNextTrack(direction);
-    if(nextTrack.isOccupied()) System.out.println("CRASH");
-    else
-    {
-      currentTrack.setOccupied(false);
-      currentTrack = currentTrack.getNextTrack(direction);
-      currentTrack.setOccupied(true);
-    }
+    this.currentTrack = currentTrack;
+    this.gc = gc;
+    train.setVisible(false);
+    gc.drawImage(train, currentTrack.getX()*IMAGE_SIZE, currentTrack.getY()*IMAGE_SIZE);
   }
   
+  public void setCurrentTrack(Track currentTrack)
+  {
+    this.currentTrack = currentTrack;
+  }
+  
+  public void draw()
+  {
+  
+  }
 }

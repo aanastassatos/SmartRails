@@ -17,7 +17,7 @@ public class ResourceLoader
   public static Image getTrainImage(String fileName, double width, double height, boolean preserveRatio, boolean smooth)
   {
     
-    return getImage("trains/"+fileName, width, height, preserveRatio, smooth);
+    return getImage("train/"+fileName, width, height, preserveRatio, smooth);
   }
   
   public static Image getImage(String fileName, double width, double height, boolean preserveRatio, boolean smooth)

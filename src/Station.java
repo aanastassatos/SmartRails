@@ -1,14 +1,18 @@
 import java.util.ArrayList;
 
-public class Station
+public class Station extends Track
 {
-  private Track track;
   private ArrayList<Train> trains;
+  private String name;
   
-  public Station(Track track)
+  public Station(String name, int x, int y)
   {
-    this.track = track;
+    super(TrackType.STATION, x, y);
+    this.name = name;
   }
   
-  
+  public String getName()
+  {
+    return name;
+  }
 }

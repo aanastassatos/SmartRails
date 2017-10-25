@@ -1,33 +1,45 @@
-public class Track
+public class Track extends Component
 {
   private TrackType trackType;
   private boolean occupied;
+  private Direction direction;
   private Track left;
   private Track right;
-  
-  public Track(final TrackType trackType, Track left, Track right)
+
+  Track()
+  {
+    //Starts thread through component
+  }
+
+  void setTrackType(final TrackType trackType)
   {
     this.trackType = trackType;
   }
-  
-  public Track getNextTrack(Direction direction)
+
+  void setDirection(Direction direct)
+  {
+    //somehow talk to train here...
+    this.direction = direct;
+  }
+
+  Track getNextTrack()
   {
     if(direction == Direction.RIGHT) return right;
-    else return left;
-    
+    return left;
   }
-  
+
+
   public TrackType getTrackType()
   {
     return trackType;
   }
-  
-  public boolean isOccupied()
+
+  boolean isOccupied()
   {
     return occupied;
   }
-  
-  public void setOccupied(boolean occupied)
+
+  void setOccupied(boolean occupied)
   {
     this.occupied = occupied;
   }

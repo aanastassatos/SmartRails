@@ -1,18 +1,17 @@
-public class Train
+
+public class Train extends Component
 {
   private Track currentTrack;
-  private  Direction direction;
-  
+
   public void moveTrain()
   {
-    Track nextTrack = currentTrack.getNextTrack(direction);
+    Track nextTrack = currentTrack.getNextTrack();
     if(nextTrack.isOccupied()) System.out.println("CRASH");
     else
     {
       currentTrack.setOccupied(false);
-      currentTrack = currentTrack.getNextTrack(direction);
+      currentTrack = currentTrack.getNextTrack();
       currentTrack.setOccupied(true);
     }
   }
-  
 }

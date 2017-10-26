@@ -7,7 +7,11 @@ public class SmartRails implements Runnable
   public SmartRails(ArrayList<Line> lines)
   {
     this.lines = lines;
-    this.lines.get(0).findStation("9");
+    Train train = new Train("train");
+    ArrayList<Train> trains = new ArrayList<>();
+    trains.add(train);
+    this.lines.get(0).getStartPoint().setTrains(trains);
+    this.lines.get(0).getStartPoint().startTrain("train");
   }
   
   @Override

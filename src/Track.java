@@ -1,97 +1,113 @@
-import javafx.scene.canvas.GraphicsContext;
-
-public class Track
+public class Track extends Component
 {
-  private TrackType trackType;
-  private Track left;
-  private Track right;
-  private Train train;
-  private double x;
-  private double y;
-  
-  public Track(TrackType trackType, double x, double y)
+  private TrackType trackType; //Enum denoting the type of track this is.
+  private Train train;  //Train that is currently on the track. Null if none.
+  private Track left; //Reference to track piece to the left.
+  private Track right;  //Reference to track piece to the left.
+
+  public Track(TrackType trackType)
   {
+    //Starts thread through component
     this.trackType = trackType;
-    this.x = x;
-    this.y = y;
   }
   
+  /**
+   * Takes a direction and returns the track piece in that direction
+   * relative to this track piece.
+   * @param direction
+   * @return
+   */
   public Track getNextTrack(Direction direction)
   {
     if(direction == Direction.RIGHT) return right;
-    else return left;
-    
+    return left;
   }
   
-  public void setLeft(Track left)
+  /**
+   * Gets the track piece to the right.
+   * @return
+   */
+  public Track getRight()
   {
-    this.left = left;
+    return right;
   }
   
+  /**
+   * Sets the track piece to the right.
+   * @param right
+   */
   public void setRight(Track right)
   {
     this.right = right;
   }
   
-  public double getX()
+  /**
+   * Gets the track piece to the left.
+   * @return
+   */
+  public Track getLeft()
   {
-    return x;
+    return left;
   }
   
-  public double getY()
+  /**
+   * Gets the track piece to the left.
+   * @param left
+   */
+  public void setLeft(Track left)
   {
-    return y;
+    this.left = left;
   }
   
-  //  public boolean findStation(Direction direction, String stationName)
-//  {
-//    System.out.println(x + " " + y);
-//    if(getNextTrack(direction) instanceof Station)
-//    {
-//      if(((Station) getNextTrack(direction)).getName() == stationName)
-//      {
-//        System.out.println("SUCCESS");
-//        return true;
-//      }
-//      else return false;
-//    }
-//
-//    else if(getNextTrack(direction) instanceof Switch)
-//    {
-//      if((((Switch) getNextTrack(direction)).getConnection()).findStation(direction, stationName))
-//      {
-//        System.out.println(trackType);
-//        return true;
-//      }
-//      else return getNextTrack(direction).findStation(direction, stationName);
-//    }
-//
-//    else
-//    {
-//      if(getNextTrack(direction).findStation(direction, stationName))
-//      {
-//        System.out.println(trackType);
-//        return true;
-//      }
-//    }
-//
-//    return false;
-//  }
+  /**
+   * Sets the train currently on this track.
+   * @param train
+   */
+  public void setTrain(Train train)
+  {
+    this.train = train;
+  }
   
+  public Train getTrain()
+  {
+    return train;
+  }
+  
+  /**
+   * Returns a boolean indicating whether or not there is a train on this track piece.
+   * @return
+   */
+  public boolean isOccupied()
+  {
+    return (train != null);
+  }
+  
+  /**
+   * Returns the type of track piece this is.
+   * @return
+   */
   public TrackType getTrackType()
   {
     return trackType;
   }
   
-  
-  
-  //  public boolean isOccupied()
-//  {
-//    return occupied;
-//  }
-//
-//  public void setOccupied(boolean occupied)
-//  {
-//    this.occupied = occupied;
-//  }
+  /**
+   * Moves the train on this track to the next tack in the direction it is going.
+   */
+  public void moveTrain()
+  {
+    Track next;
+    if(train != null)
+    {
+      next = getNextTrack(train.getDirection());
+      if(next.isOccupied())
+      {
+        System.out.println("CRASH");
+      }
+      train.setCurrentTrack(next);
+      next.setTrain(train);
+      train = null;
+      next.moveTrain();
+    }
+  }
 }

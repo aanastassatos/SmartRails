@@ -1,16 +1,16 @@
 public class Line extends Thread
 {
-  private Station startPoint;
-  private Station endPoint;
+  private StationTrack startPoint;
+  private StationTrack endPoint;
   
-  public Line(Station startPoint, Station endPoint)
+  public Line(StationTrack startPoint, StationTrack endPoint)
   {
     this.startPoint = startPoint;
     this.endPoint = endPoint;
   }
   
-  public void findStation(String stationName)
+  public StationTrack getStartPoint()
   {
-    startPoint.findStation(Direction.RIGHT, stationName);
+    return startPoint;
   }
 }

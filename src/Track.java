@@ -1,14 +1,18 @@
-public class Track extends Component
+public class Track implements Runnable
 {
   private TrackType trackType; //Enum denoting the type of track this is.
   private Train train;  //Train that is currently on the track. Null if none.
   private Track left; //Reference to track piece to the left.
   private Track right;  //Reference to track piece to the left.
+  private double x;
+  private double y;
 
-  public Track(TrackType trackType)
+  public Track(TrackType trackType, double x, double y)
   {
     //Starts thread through component
     this.trackType = trackType;
+    this.x = x;
+    this.y = y;
   }
   
   /**
@@ -106,8 +110,34 @@ public class Track extends Component
       }
       train.setCurrentTrack(next);
       next.setTrain(train);
+      train.relocate(x, y);
       train = null;
+      
+      try
+      {
+        Thread.sleep(200);
+      } catch (InterruptedException e)
+      {
+        e.printStackTrace();
+      }
+      
       next.moveTrain();
     }
+  }
+  
+  public double getX()
+  {
+    return x;
+  }
+  
+  public double getY()
+  {
+    return y;
+  }
+  
+  @Override
+  public void run()
+  {
+  
   }
 }

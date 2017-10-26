@@ -3,9 +3,9 @@ public class LightTrack extends Track
 {
   boolean lightOn;
   
-  public LightTrack()
+  public LightTrack(double x, double y)
   {
-    super(TrackType.LIGHT);
+    super(TrackType.LIGHT, x, y);
     lightOn = false;
   }
   

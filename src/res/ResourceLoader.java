@@ -9,21 +9,20 @@ public class ResourceLoader
 {
   static ResourceLoader rl = new ResourceLoader();
   
-  public static Image getTrackImage(String fileName, double width, double height, boolean preserveRatio, boolean smooth)
+  public static Image getTrackImage(String fileName, double width, double height)
   {
-    return getImage("tracks/"+fileName, width, height, preserveRatio, smooth);
+    return getImage("tracks/"+fileName, width, height);
   }
   
-  public static Image getTrainImage(String fileName, double width, double height, boolean preserveRatio, boolean smooth)
+  public static Image getTrainImage(String fileName, double width, double height)
   {
-    
-    return getImage("train/"+fileName, width, height, preserveRatio, smooth);
+    return getImage("train/"+fileName, width, height);
   }
   
-  public static Image getImage(String fileName, double width, double height, boolean preserveRatio, boolean smooth)
+  public static Image getImage(String fileName, double width, double height)
   {
     InputStream is = new BufferedInputStream(rl.getClass().getResourceAsStream(fileName));
-    Image image = new Image(is, width, height, preserveRatio, smooth);
+    Image image = new Image(is, width, height, false, false);
     
     return image;
   }

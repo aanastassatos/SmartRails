@@ -5,16 +5,17 @@ public class StationTrack extends Track
   private String name;
   private ArrayList<Train> trains;
   
-  StationTrack(String name)
+  StationTrack(String name, double x, double y)
   {
-    super(TrackType.STATION);
+    super(TrackType.STATION, x, y);
     this.name = name;
     trains = new ArrayList<>();
   }
   
-  public void startTrain(String trainName)
+  public void startTrain(String trainName, String destination)
   {
     Train train = findTrain(trainName);
+    secureRoute(destination);
     if(train != null)
     {
       train.setDirection(initDirection());
@@ -25,9 +26,10 @@ public class StationTrack extends Track
     }
   }
   
-  public void setTrains(ArrayList<Train> trains)
+  public void addTrain(Train train)
   {
-    this.trains = trains;
+    trains.add(train);
+    train.relocate(getX(), getY());
   }
   
   @Override
@@ -56,6 +58,11 @@ public class StationTrack extends Track
     return null;
   }
 
+  private void secureRoute(String destination)
+  {
+    //TODO
+  }
+  
   private Direction initDirection()
   {
     if(getNextTrack(Direction.RIGHT) == null) return Direction.LEFT;

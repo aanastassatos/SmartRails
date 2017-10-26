@@ -2,11 +2,11 @@
 public class SwitchTrack extends Track
 {
   private boolean switchOn;
-  SwitchTrack connection;
+  Track connection;
 
-  SwitchTrack(TrackType trackType)
+  SwitchTrack(TrackType trackType, double x, double y)
   {
-    super(trackType);
+    super(trackType, x, y);
     switchOn = true;
   }
   
@@ -35,7 +35,7 @@ public class SwitchTrack extends Track
    * Sets the reference to the track that the switch is connected to.
    * @param connection
    */
-  public void setConnection(SwitchTrack connection)
+  public void setConnection(Track connection)
   {
     this.connection = connection;
   }

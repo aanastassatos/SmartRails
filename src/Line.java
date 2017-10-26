@@ -13,4 +13,9 @@ public class Line extends Thread
   {
     return startPoint;
   }
+  
+  public StationTrack getEndPoint()
+  {
+    return endPoint;
+  }
 }

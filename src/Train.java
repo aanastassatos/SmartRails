@@ -1,8 +1,9 @@
-public class Train extends Component
+public class Train
 {
   private Track currentTrack;
   private  Direction direction;
   private String name;
+  private TrainView trainView;
   
   public Train(String name)
   {
@@ -27,5 +28,16 @@ public class Train extends Component
   public String getName()
   {
     return name;
+  }
+  
+  public void setTrainView(TrainView trainView)
+  {
+    this.trainView = trainView;
+    trainView.setVisible(true);
+  }
+  
+  public void relocate(double x, double y)
+  {
+    trainView.move(x, y);
   }
 }

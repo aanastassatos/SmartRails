@@ -12,16 +12,22 @@ public class StationTrack extends Track
     trains = new ArrayList<>();
   }
   
+  /**
+   * Takes a train name and a destination station name, finds that train within the station (if it is there), then
+   * sets the trainon the track, secures the route, and sends the train on its way.
+   * @param trainName
+   * @param destination
+   */
   public void startTrain(String trainName, String destination)
   {
     Train train = findTrain(trainName);
-    secureRoute(destination);
     if(train != null)
     {
       train.setDirection(initDirection());
       train.setCurrentTrack(this);
       super.setTrain(train);
       trains.remove(train);
+      train.secureRoute(destination);
       moveTrain();
     }
   }
@@ -29,7 +35,7 @@ public class StationTrack extends Track
   public void addTrain(Train train)
   {
     trains.add(train);
-    train.relocate(getX(), getY());
+    train.setCurrentTrack(this);
   }
   
   @Override
@@ -56,11 +62,6 @@ public class StationTrack extends Track
     }
     
     return null;
-  }
-
-  private void secureRoute(String destination)
-  {
-    //TODO
   }
   
   private Direction initDirection()

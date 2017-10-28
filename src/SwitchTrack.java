@@ -7,7 +7,7 @@ public class SwitchTrack extends Track
   SwitchTrack(TrackType trackType, double x, double y)
   {
     super(trackType, x, y);
-    switchOn = true;
+    switchOn = false;
   }
   
   /**
@@ -43,8 +43,8 @@ public class SwitchTrack extends Track
   /**
    * Changes the direction of the switch.
    */
-  public void switchDirection()
+  public void switchDirection(boolean switchOn)
   {
-    switchOn = !switchOn;
+    this.switchOn = switchOn;
   }
 }

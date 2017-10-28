@@ -110,7 +110,6 @@ public class Track implements Runnable
       }
       train.setCurrentTrack(next);
       next.setTrain(train);
-      train.relocate(x, y);
       train = null;
       
       try

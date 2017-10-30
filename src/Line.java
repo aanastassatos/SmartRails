@@ -1,4 +1,4 @@
-public class Line extends Thread
+public class Line
 {
   private StationTrack startPoint;
   private StationTrack endPoint;

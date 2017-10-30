@@ -7,7 +7,7 @@ public class TrainView extends ImageView
 {
   public TrainView(String fileName)
   {
-    super(res.ResourceLoader.getTrainImage("train.png", TrackMaker.IMAGE_WIDTH, TrackMaker.IMAGE_HEIGHT));
+    super(res.ResourceLoader.getTrainImage(fileName + ".png", TrackMaker.IMAGE_WIDTH, TrackMaker.IMAGE_HEIGHT));
   }
   
   public void move(double x, double y)

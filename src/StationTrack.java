@@ -14,11 +14,11 @@ public class StationTrack extends Track
   
   /**
    * Takes a train name and a destination station name, finds that train within the station (if it is there), then
-   * sets the trainon the track, secures the route, and sends the train on its way.
+   * sets the train on the track, secures the route, and sends the train on its way.
    * @param trainName
    * @param destination
    */
-  public void startTrain(String trainName, String destination)
+  public void startTrain(String trainName, StationTrack destination)
   {
     Train train = findTrain(trainName);
     if(train != null)
@@ -44,7 +44,7 @@ public class StationTrack extends Track
     if(getNextTrack(getTrain().getDirection()) == null)
     {
       trains.add(getTrain());
-      System.out.println("Train is now in Station "+name);
+      System.out.println("Train is now in Station "+ name);
       setTrain(null);
     }
     
@@ -58,7 +58,7 @@ public class StationTrack extends Track
   {
     for(Train train : trains)
     {
-      if(train.getName() == trainName) return train;
+      if(train.getName().equals(trainName)) return train;
     }
     
     return null;

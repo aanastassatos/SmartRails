@@ -54,6 +54,11 @@ public class StationTrack extends Track
     }
   }
   
+  public String getName()
+  {
+    return name;
+  }
+  
   private Train findTrain(String trainName)
   {
     for(Train train : trains)

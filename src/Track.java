@@ -10,7 +10,6 @@ public class Track implements Runnable
 
   public Track(TrackType trackType, double x, double y)
   {
-    //Starts thread through component
     this.trackType = trackType;
     this.x = x;
     this.y = y;
@@ -78,6 +77,10 @@ public class Track implements Runnable
     this.train = train;
   }
   
+  /**
+   * Gets the train currently on this track.
+   * @return
+   */
   public Train getTrain()
   {
     return train;
@@ -120,7 +123,7 @@ public class Track implements Runnable
       
       try
       {
-        Thread.sleep(200);
+        Thread.sleep(500);
       } catch (InterruptedException e)
       {
         e.printStackTrace();
@@ -128,6 +131,16 @@ public class Track implements Runnable
       
       next.moveTrain();
     }
+  }
+  
+  public void kill()
+  {
+    while(Thread.currentThread().isAlive())
+    {
+      Thread.currentThread().interrupt();
+    }
+    
+    if(getNextTrack(Direction.RIGHT) != null) getNextTrack(Direction.RIGHT).kill();
   }
   
   public double getX()
@@ -143,6 +156,15 @@ public class Track implements Runnable
   @Override
   public void run()
   {
-  
+    while(true)
+    {
+//      try{
+//        Thread.sleep(50);
+//      } catch (InterruptedException e)
+//      {
+//        System.out.println(Thread.currentThread().getName()+" died.");
+//        break;
+//      }
+    }
   }
 }

@@ -1,0 +1,4 @@
+public enum MessageType
+{
+  SEARCH, SECURE, FOUND, NOTFOUND, SECURED, UNSECURED
+}

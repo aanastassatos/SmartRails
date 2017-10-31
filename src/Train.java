@@ -10,6 +10,39 @@ public class Train
   public Train(String name)
   {
     this.name = name;
+    String trainImageName = "Train_";
+    double random = (Math.random()*5) + 1;
+    
+    switch((int)random)
+    {
+      case 1:
+        trainImageName = trainImageName + "Blue";
+        break;
+  
+      case 2:
+        trainImageName = trainImageName + "Green";
+        break;
+  
+      case 3:
+        trainImageName = trainImageName + "Purple";
+        break;
+        
+      case 4:
+        trainImageName = trainImageName + "Red";
+        break;
+      
+      case 5:
+        trainImageName = trainImageName + "Yellow";
+        break;
+        
+      default:
+        trainImageName = "train";
+        break;
+    }
+    
+    trainImageName = trainImageName + ".png";
+    
+    trainView = new TrainView(trainImageName);
   }
 
   /**
@@ -102,9 +135,9 @@ public class Train
     return name;
   }
   
-  public void setTrainView(TrainView trainView)
+  public TrainView getTrainView()
   {
-    this.trainView = trainView;
+    return trainView;
   }
   
   public void relocate(double x, double y)

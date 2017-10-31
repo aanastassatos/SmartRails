@@ -27,8 +27,8 @@ public class TrackMaker
   private final Image STRAIGHT_RAIL = res.ResourceLoader.getTrackImage("straightrail.png", IMAGE_WIDTH, IMAGE_HEIGHT);
   private final Image RED_LIGHT_RAIL = res.ResourceLoader.getTrackImage("redlightrail.png", IMAGE_WIDTH, IMAGE_HEIGHT);
   private final Image GREEN_LIGHT_RAIL = res.ResourceLoader.getTrackImage("greenlightrail.png", IMAGE_WIDTH, IMAGE_HEIGHT);
-  private final Image L_STATION = res.ResourceLoader.getTrackImage("Stationn_Left.png", IMAGE_WIDTH, IMAGE_HEIGHT);
-  private final Image R_STATION = res.ResourceLoader.getTrackImage("Stationn_Right.png", IMAGE_WIDTH, IMAGE_HEIGHT);
+  private final Image L_STATION = res.ResourceLoader.getTrackImage("Station_Left.png", IMAGE_WIDTH, IMAGE_HEIGHT);
+  private final Image R_STATION = res.ResourceLoader.getTrackImage("Station_Right.png", IMAGE_WIDTH, IMAGE_HEIGHT);
   private final Image Z_SWITCH = res.ResourceLoader.getTrackImage("switchrailuprightdownleft.png", IMAGE_WIDTH, IMAGE_HEIGHT);
   private final Image RIGHT_SWITCH_UP = res.ResourceLoader.getTrackImage("rightswitchup.png", IMAGE_WIDTH, IMAGE_HEIGHT);
   private final Image LEFT_SWITCH_UP = res.ResourceLoader.getTrackImage("leftswitchup.png", IMAGE_WIDTH, IMAGE_HEIGHT);

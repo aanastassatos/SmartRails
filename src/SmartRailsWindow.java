@@ -23,8 +23,6 @@ public class SmartRailsWindow extends Application
   {
     TrackMaker track = new TrackMaker();
     Train train = new Train("train");
-    TrainView trainView = new TrainView("train");
-    train.setTrainView(trainView);
     Pane root = new Pane();
     Canvas canvas = new Canvas(WINDOW_WIDTH, WINDOW_HEIGHT);
     track.makeTrack(canvas.getGraphicsContext2D());
@@ -36,7 +34,7 @@ public class SmartRailsWindow extends Application
       button.setVisible(false);
       new Thread(smartRails).start();
     });
-    root.getChildren().addAll( canvas, trainView, button);
+    root.getChildren().addAll( canvas, train.getTrainView(), button);
     Scene scene = new Scene(root);
     stage.setScene(scene);
     stage.show();

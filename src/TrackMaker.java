@@ -6,6 +6,7 @@ import javafx.scene.text.Font;
 
 import javax.swing.event.ChangeListener;
 import java.util.ArrayList;
+import java.util.Iterator;
 
 public class TrackMaker
 {
@@ -41,8 +42,15 @@ public class TrackMaker
   private final Image RIGHT_SWITCH_DOWN = res.ResourceLoader.getTrackImage("rightswitchdown.png", IMAGE_WIDTH, IMAGE_HEIGHT);
   private final Image LEFT_SWITCH_DOWN = res.ResourceLoader.getTrackImage("leftswitchdown.png", IMAGE_WIDTH, IMAGE_HEIGHT);
   private ArrayList<Line> lines = new ArrayList<>();
+  private ArrayList<TrainView> trainViews = new ArrayList<>();
   
-  public void makeTrack(GraphicsContext gc)
+  public TrackMaker(int num_trains, GraphicsContext gc)
+  {
+    makeTrack(gc);
+    makeTrains(num_trains);
+  }
+  
+  private void makeTrack(GraphicsContext gc)
   {
     Track [][] trackMap = new Track[CHAR_MAP.length][CHAR_MAP[0].length];
     StationTrack startPoint = null;
@@ -69,8 +77,8 @@ public class TrackMaker
         {
           case '@':
             gc.drawImage(L_STATION, x, y);
-            gc.fillText("A" + stations, x + IMAGE_WIDTH/2 - IMAGE_WIDTH/11, y + IMAGE_HEIGHT/6);
             startPoint = new StationTrack("A" + stations, x, y);
+            gc.fillText("A" + stations, x + IMAGE_WIDTH/2 - IMAGE_WIDTH/11, y + IMAGE_HEIGHT/6);
             track = startPoint;
             break;
   
@@ -131,6 +139,7 @@ public class TrackMaker
             break;
         }
         
+        new Thread(track).start();
         trackMap[i][j] = track;
         track.setLeft(prev);
         
@@ -144,11 +153,49 @@ public class TrackMaker
     }
   }
   
+  private void makeTrains(int num_trains)
+  {
+    ArrayList<Train> trains = new ArrayList<>();
+    for(int i = 0; i < num_trains; i++)
+    {
+      Train train = new Train(String.valueOf(i+1));
+      trains.add(train);
+      trainViews.add(train.getTrainView());
+    }
+    
+    int i = 0;
+    
+    while(i < trains.size())
+    {
+      for(Line line : lines)
+      {
+        if(i < trains.size())
+        {
+          line.getStartPoint().addTrain(trains.get(i));
+        }
+        
+        i += 1;
+        
+        if(i < trains.size())
+        {
+          line.getEndPoint().addTrain(trains.get(i));
+        }
+        
+        i += 1;
+      }
+    }
+  }
+  
   public ArrayList<Line> getLines()
   {
     return lines;
   }
-
+  
+  public ArrayList<TrainView> getTrainViews()
+  {
+    return trainViews;
+  }
+  
   public int getLengthofLine()
   {
     return CHAR_MAP[0].length;

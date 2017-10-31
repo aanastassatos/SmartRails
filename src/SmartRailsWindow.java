@@ -13,6 +13,7 @@ public class SmartRailsWindow extends Application
 {
   public static final int WINDOW_WIDTH = 1600;
   public static final int WINDOW_HEIGHT = 800;
+  public static final int NUM_TRAINS = 1;
   
   public static void main(String[] args)
   {
@@ -22,29 +23,36 @@ public class SmartRailsWindow extends Application
   @Override
   public void start(Stage stage) throws Exception
   {
-    TrackMaker track = new TrackMaker();
-    Train train = new Train("train");
-    Pane root = new Pane();
+    Group root = new Group();
     Canvas canvas = new Canvas(WINDOW_WIDTH, WINDOW_HEIGHT);
-    track.makeTrack(canvas.getGraphicsContext2D());
-    canvas.setOnMouseClicked(e -> {
-      doAction(e, track, train);
-    });
-    track.getLines().get(0).getStartPoint().addTrain(train);
+    TrackMaker track = new TrackMaker(NUM_TRAINS, canvas.getGraphicsContext2D());
+    
+//    canvas.setOnMouseClicked(e -> {
+//      doAction(e, track, train);
+//    });
+    
     SmartRails smartRails = new SmartRails(track.getLines());
-    train.printDirection();
+    
     Button button = new Button("I Am A Button");
     button.setOnAction(e->
     {
       button.setVisible(false);
       new Thread(smartRails).start();
     });
-    root.getChildren().addAll( canvas, train.getTrainView(), button);
+    
+    root.getChildren().addAll(canvas, button);
+    
+    for(TrainView trainView  : track.getTrainViews())
+    {
+      root.getChildren().add(trainView);
+    }
+    
     Scene scene = new Scene(root);
     stage.setScene(scene);
+    stage.setOnCloseRequest(e -> System.exit(0));
     stage.show();
   }
-
+  
   private void doAction(MouseEvent event, TrackMaker trackMaker, Train train)
   {
     double IH = trackMaker.getImageHeight();

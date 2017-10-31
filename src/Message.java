@@ -10,4 +10,19 @@ public class Message
     this.messageType = messageType;
     this.recipient = recipient;
   }
+  
+  public boolean isRecipient(Object obj)
+  {
+    if(obj instanceof Train)
+    {
+      if(((Train) obj).getName().equals(recipient)) return true;
+    }
+    
+    else if(obj instanceof StationTrack)
+    {
+      if(((StationTrack) obj).getName().equals(recipient)) return true;
+    }
+    
+    return false;
+  }
 }

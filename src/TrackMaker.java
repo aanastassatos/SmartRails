@@ -1,6 +1,8 @@
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.text.Font;
 
 import javax.swing.event.ChangeListener;
 import java.util.ArrayList;
@@ -21,7 +23,11 @@ public class TrackMaker
                                               {'@', '-', '(', '-', ']', '-', '-', '&'},
                                               {'@', '-', '-', '-', '(', ']', '-', '&'},
                                               {'@', '-', '-', '-', '-', '(', '-', '&'}};
-  
+
+
+  /*private static final char [][] CHAR_MAP = {{'@', '-', '&'},
+                                            {'@', '-', '&'}};*/
+  public static final int FONT_SIZE = 27;
   public static final double IMAGE_WIDTH = SmartRailsWindow.WINDOW_WIDTH/CHAR_MAP[1].length;
   public static final double IMAGE_HEIGHT = SmartRailsWindow.WINDOW_HEIGHT/CHAR_MAP.length;
   private final Image STRAIGHT_RAIL = res.ResourceLoader.getTrackImage("straightrail.png", IMAGE_WIDTH, IMAGE_HEIGHT);
@@ -57,25 +63,28 @@ public class TrackMaker
         c = CHAR_MAP[i][j];
         x = j * IMAGE_WIDTH;
         y = i * IMAGE_HEIGHT;
+        gc.setFont(Font.font(FONT_SIZE));
+
         switch (c)
         {
           case '@':
             gc.drawImage(L_STATION, x, y);
-            startPoint = new StationTrack(Character.toString((char)('A'+ stations)), x, y);
+            gc.fillText("A" + stations, x + IMAGE_WIDTH/2 - IMAGE_WIDTH/11, y + IMAGE_HEIGHT/6);
+            startPoint = new StationTrack("A" + stations, x, y);
             track = startPoint;
-            stations += 1;
             break;
   
           case '&':
             gc.drawImage(R_STATION, x, y);
-            endPoint = new StationTrack(Character.toString((char)('A'+ stations)), x, y);
+            gc.fillText("B" + stations, x + IMAGE_WIDTH/2 - IMAGE_WIDTH/11, y + IMAGE_HEIGHT/6);
+            endPoint = new StationTrack("B"+ stations, x, y);
             track = endPoint;
             stations += 1;
             break;
   
           case '-':
             gc.drawImage(STRAIGHT_RAIL, x, y);
-            track = new Track(TrackType.STRAIGHT, x, y);
+            track = new StraightTrack(TrackType.STRAIGHT, x, y);
             break;
   
           case '*':
@@ -139,4 +148,13 @@ public class TrackMaker
   {
     return lines;
   }
+
+  public int getLengthofLine()
+  {
+    return CHAR_MAP[0].length;
+  }
+
+  public double getImageWidth() { return IMAGE_WIDTH; }
+
+  public double getImageHeight() { return IMAGE_HEIGHT; }
 }

@@ -1,7 +1,9 @@
+import java.util.ArrayList;
+
 public class Train
 {
   private Track currentTrack;
-  private  Direction direction;
+  private Direction direction;
   private String name;
   private TrainView trainView;
   
@@ -42,14 +44,39 @@ public class Train
     
     trainView = new TrainView(trainImageName);
   }
-  
+
   /**
    * Takes the destination name, and goes through the track, securing the route to the destination by flipping track
    * switches, and turning stop lights red.
    * @param destination
    */
-  public void secureRoute(String destination)
+
+  public void secureRoute(StationTrack destination)
   {
+    ArrayList<Track> pathway = new ArrayList<>();
+    Track nextTrack = currentTrack.getNextTrack(direction);
+    while (nextTrack != destination)
+    {
+      if(nextTrack.getTrackType() == TrackType.STRAIGHT)
+      {
+        pathway.add(currentTrack);
+        currentTrack.setLocked(true);
+        currentTrack = nextTrack;
+        nextTrack = currentTrack.getNextTrack(direction);
+      }
+      else if(nextTrack.getTrackType() == TrackType.STATION)
+      {
+        nextTrack = destination;
+      }
+      else
+      {
+        pathway.add(currentTrack);
+        currentTrack.setLocked(true);
+        currentTrack = nextTrack;
+        nextTrack = currentTrack.getNextTrack(direction);
+      }
+    }
+
     //TODO
     // SPECIFICATIONS:
     // This method should be called by StationTrack at the beginning of a trip and by LightTrack after a route is freed by
@@ -62,7 +89,7 @@ public class Train
     // train, secure the route up to the first red light rail so the train can move to that light track where it should
     // wait for track to be freed.
   }
-  
+
   /**
    * Frees the route behind where a train has already moved.
    */
@@ -83,6 +110,11 @@ public class Train
   public Direction getDirection()
   {
     return direction;
+  }
+
+  public void printDirection() {
+    if(direction == Direction.RIGHT) System.out.println("Right");
+    else if(direction == Direction.LEFT) System.out.println("Left");
   }
   
   public void setCurrentTrack(Track currentTrack)

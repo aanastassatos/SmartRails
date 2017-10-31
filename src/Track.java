@@ -4,6 +4,7 @@ public class Track implements Runnable
   private Train train;  //Train that is currently on the track. Null if none.
   private Track left; //Reference to track piece to the left.
   private Track right;  //Reference to track piece to the left.
+  private boolean locked = false;
   private double x;
   private double y;
 
@@ -52,6 +53,11 @@ public class Track implements Runnable
   public Track getLeft()
   {
     return left;
+  }
+
+  public void setLocked(boolean locked)
+  {
+    this.locked = locked;
   }
   
   /**

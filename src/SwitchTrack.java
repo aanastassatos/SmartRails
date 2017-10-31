@@ -43,7 +43,7 @@ public class SwitchTrack extends Track
   /**
    * Changes the direction of the switch.
    */
-  public void switchDirection(boolean switchOn)
+  public void setSwitch(boolean switchOn)
   {
     this.switchOn = switchOn;
   }

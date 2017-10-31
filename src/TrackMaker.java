@@ -19,10 +19,10 @@ public class TrackMaker
   //] = Left switch down
   //z = Z switch
   //s = S switch
-  private static final char [][] CHAR_MAP =  {{'@', '-', ']', '-', '-', '-', '-', '&'},
+  private static final char [][] CHAR_MAP =  {{'@', '-', ']', '-', '-', '*', '-', '&'},
                                               {'@', '-', '(', '-', ']', '-', '-', '&'},
-                                              {'@', '-', '-', '-', '(', ']', '-', '&'},
-                                              {'@', '-', '-', '-', '-', '(', '-', '&'}};
+                                              {'@', '-', '*', '-', '(', ']', '-', '&'},
+                                              {'@', '%', '-', '-', '-', '(', '-', '&'}};
 
 
   /*private static final char [][] CHAR_MAP = {{'@', '-', '&'},

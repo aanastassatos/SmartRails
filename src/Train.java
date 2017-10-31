@@ -35,6 +35,13 @@ public class Train
       {
         nextTrack = destination;
       }
+      else if(nextTrack.getTrackType() == TrackType.LIGHT)
+      {
+        pathway.add(currentTrack);
+        currentTrack.setLocked(true);
+        currentTrack = nextTrack;
+        nextTrack = currentTrack.getNextTrack(direction);
+      }
       else
       {
         pathway.add(currentTrack);

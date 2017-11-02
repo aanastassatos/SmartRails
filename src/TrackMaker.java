@@ -114,7 +114,7 @@ public class TrackMaker
             connection = (SwitchTrack) trackMap[i-1][j];
             track = new SwitchTrack(TrackType.RIGHT_UP_SWITCH, x, y);
             ((SwitchTrack) track).setConnection(connection);
-            connection.setConnection(track);
+            connection.setConnection((SwitchTrack) track);
             break;
   
           case ')':
@@ -122,7 +122,7 @@ public class TrackMaker
             connection = (SwitchTrack) trackMap[i-1][j];
             track = new SwitchTrack(TrackType.LEFT_UP_SWITCH, x, y);
             ((SwitchTrack) track).setConnection(connection);
-            connection.setConnection(track);
+            connection.setConnection((SwitchTrack) track);
             break;
   
           case '[':
@@ -160,6 +160,7 @@ public class TrackMaker
     {
       Train train = new Train(String.valueOf(i+1));
       trains.add(train);
+      new Thread(train).start();
       trainViews.add(train.getTrainView());
     }
     

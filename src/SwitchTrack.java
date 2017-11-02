@@ -2,7 +2,7 @@
 public class SwitchTrack extends Track
 {
   private boolean switchOn;
-  Track connection;
+  SwitchTrack connection;
 
   SwitchTrack(TrackType trackType, double x, double y)
   {
@@ -31,11 +31,24 @@ public class SwitchTrack extends Track
     return super.getNextTrack(direction);
   }
   
+  @Override
+  public synchronized void sendMessageToNextTrack(Message msg)
+  {
+    Boolean switchValue = switchOn;
+    
+    switchOn = false;
+    getNextTrack(msg.msgDir).receiveMessage(msg);
+    switchOn = true;
+    getNextTrack(msg.msgDir).receiveMessage(msg);
+    
+    switchOn = switchValue;
+  }
+  
   /**
    * Sets the reference to the track that the switch is connected to.
    * @param connection
    */
-  public void setConnection(Track connection)
+  public void setConnection(SwitchTrack connection)
   {
     this.connection = connection;
   }
@@ -46,5 +59,14 @@ public class SwitchTrack extends Track
   public void switchDirection(boolean switchOn)
   {
     this.switchOn = switchOn;
+  }
+  
+  /**
+   * Returns whether or not the switch is on.
+   * @return
+   */
+  public boolean isSwitchOn()
+  {
+    return switchOn;
   }
 }

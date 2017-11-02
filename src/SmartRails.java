@@ -13,8 +13,13 @@ public class SmartRails implements Runnable
   @Override
   public void run()
   {
-    StationTrack endpoint = lines.get(0).getEndPoint();
-    lines.get(0).getStartPoint().startTrain("1", endpoint);
+    Trip trip = new Trip("B0","1");
+    Trip otherTrip = new Trip("B1", "3");
+    Trip another = new Trip("A0", "2");
+//    findTrain(trip);
+    lines.get(0).getStartPoint().startTrain(trip);
+    lines.get(0).getEndPoint().startTrain(another);
+    //lines.get(1).getStartPoint().startTrain(otherTrip);
     running = true;
 //    while(true)
 //    {

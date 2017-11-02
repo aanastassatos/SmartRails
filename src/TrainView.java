@@ -1,3 +1,4 @@
+import javafx.animation.AnimationTimer;
 import javafx.scene.image.ImageView;
 
 public class TrainView extends ImageView
@@ -7,7 +8,7 @@ public class TrainView extends ImageView
 //    @Override
 //    public void handle(long l)
 //    {
-//      move((getLayoutX()+1.5), getLayoutY());
+//      move((getLayoutX()+5), getLayoutY());
 //    }
 //  };
   

@@ -8,12 +8,14 @@ import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
 
 import java.util.ArrayList;
+import java.util.Random;
 
 public class SmartRailsWindow extends Application
 {
   public static final int WINDOW_WIDTH = 1600;
   public static final int WINDOW_HEIGHT = 800;
-  public static final int NUM_TRAINS = 1;
+  public static final int NUM_TRAINS = 3;
+  public static Random rand = new Random();
   
   public static void main(String[] args)
   {

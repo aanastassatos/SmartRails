@@ -1,9 +1,13 @@
+import java.util.*;
+import java.util.concurrent.ConcurrentLinkedQueue;
+
 public class Track implements Runnable
 {
   private TrackType trackType; //Enum denoting the type of track this is.
   private Train train;  //Train that is currently on the track. Null if none.
   private Track left; //Reference to track piece to the left.
   private Track right;  //Reference to track piece to the left.
+  private Queue <Message> messages;
   private boolean locked = false;
   private double x;
   private double y;
@@ -13,6 +17,7 @@ public class Track implements Runnable
     this.trackType = trackType;
     this.x = x;
     this.y = y;
+    messages = new ConcurrentLinkedQueue<>();
   }
   
   /**
@@ -21,7 +26,7 @@ public class Track implements Runnable
    * @param direction
    * @return
    */
-  public Track getNextTrack(Direction direction)
+  public synchronized Track getNextTrack(Direction direction)
   {
     if(direction == Direction.RIGHT) return right;
     return left;
@@ -54,7 +59,7 @@ public class Track implements Runnable
     return left;
   }
 
-  public void setLocked(boolean locked)
+  public synchronized void setLocked(boolean locked)
   {
     this.locked = locked;
   }
@@ -107,7 +112,7 @@ public class Track implements Runnable
   /**
    * Moves the train on this track to the next tack in the direction it is going.
    */
-  public void moveTrain()
+  public synchronized void moveTrain()
   {
     Track next;
     if(train != null)
@@ -133,15 +138,15 @@ public class Track implements Runnable
     }
   }
   
-  public void kill()
-  {
-    while(Thread.currentThread().isAlive())
-    {
-      Thread.currentThread().interrupt();
-    }
-    
-    if(getNextTrack(Direction.RIGHT) != null) getNextTrack(Direction.RIGHT).kill();
-  }
+//  public void kill()
+//  {
+//    while(Thread.currentThread().isAlive())
+//    {
+//      Thread.currentThread().interrupt();
+//    }
+//
+//    if(getNextTrack(Direction.RIGHT) != null) getNextTrack(Direction.RIGHT).kill();
+//  }
   
   public double getX()
   {
@@ -153,12 +158,92 @@ public class Track implements Runnable
     return y;
   }
   
+  public synchronized void receiveMessage(Message msg)
+  {
+    messages.add(msg);
+  }
+  
+  public synchronized void printMessages()
+  {
+
+  }
+  
+  public synchronized void readMessage(Message msg)
+  {
+    msg.print((int)x, (int)y);
+    if(msg.isRecipient(train)) sendMessageToTrain(msg);
+    else
+    {
+      switch (msg.messageType)
+      {
+        case MOVE:
+          moveTrain();
+          break;
+
+        case SECURE:
+          secureTrack(msg);
+          break;
+
+        case FREE:
+          freeTrack(msg);
+          break;
+
+        default:
+          sendMessageToNextTrack(msg);
+        //Do something based on message type
+      }
+    }
+  }
+  
+  private synchronized void secureTrack(Message msg)
+  {
+    System.out.println("Track "+x+", "+y+" is locked");
+    locked = true;
+    sendMessageToNextTrack(msg);
+  }
+  
+  private synchronized void freeTrack(Message msg)
+  {
+    System.out.println("Track "+x+", "+y+" is freed");
+    locked = false;
+  }
+  
+  public synchronized void sendMessageToTrain(Message msg)
+  {
+    if(msg.isRecipient(train)) train.receiveMessage(msg);
+  }
+  
+  public synchronized void sendMessageToNextTrack(Message msg)
+  {
+    if(getNextTrack(msg.msgDir) != null) getNextTrack(msg.msgDir).receiveMessage(msg);
+  }
+  
+  public synchronized void readNextMessage()
+  {
+    Message msg = messages.poll();
+    messages.remove(msg);
+    if(msg != null)
+    {
+      readMessage(msg);
+    }
+  }
+  
   @Override
   public void run()
   {
+    Message msg;
+    System.out.println(x+", "+y+": "+Thread.currentThread().getName());
     while(true)
     {
-//      try{
+      readNextMessage();
+//      if(messages.size() > 0)
+//      {
+//        msg = messages.get(0);
+//        msg.print(0, 0);
+//        readMessage(msg);
+//        messages.remove(msg);
+//      }
+      //      try{
 //        Thread.sleep(50);
 //      } catch (InterruptedException e)
 //      {

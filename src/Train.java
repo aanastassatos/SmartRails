@@ -1,17 +1,22 @@
-import java.util.ArrayList;
+import java.util.*;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
-public class Train
+public class Train implements Runnable
 {
   private Track currentTrack;
   private Direction direction;
   private String name;
   private TrainView trainView;
+  private String destination;
+  private Queue<Message> messages;
   
   public Train(String name)
   {
     this.name = name;
     String trainImageName = "Train_";
-    double random = (Math.random()*5) + 1;
+    messages = new ConcurrentLinkedQueue<>();
+    
+    double random = SmartRailsWindow.rand.nextInt((5-1)+1) + 1;
     
     switch((int)random)
     {
@@ -45,37 +50,41 @@ public class Train
     trainView = new TrainView(trainImageName);
   }
 
+  public void sendOff(String destination)
+  {
+    currentTrack.receiveMessage(new Message(name, MessageType.SEARCH, destination, direction));
+  }
+  
   /**
    * Takes the destination name, and goes through the track, securing the route to the destination by flipping track
    * switches, and turning stop lights red.
    * @param destination
    */
-
-  public void secureRoute(StationTrack destination)
+  public void secureRoute(String destination)
   {
     ArrayList<Track> pathway = new ArrayList<>();
     Track nextTrack = currentTrack.getNextTrack(direction);
-    while (nextTrack != destination)
-    {
-      if(nextTrack.getTrackType() == TrackType.STRAIGHT)
-      {
-        pathway.add(currentTrack);
-        currentTrack.setLocked(true);
-        currentTrack = nextTrack;
-        nextTrack = currentTrack.getNextTrack(direction);
-      }
-      else if(nextTrack.getTrackType() == TrackType.STATION)
-      {
-        nextTrack = destination;
-      }
-      else
-      {
-        pathway.add(currentTrack);
-        currentTrack.setLocked(true);
-        currentTrack = nextTrack;
-        nextTrack = currentTrack.getNextTrack(direction);
-      }
-    }
+//    while (nextTrack.getName() != destination)
+//    {
+//      if(nextTrack.getTrackType() == TrackType.STRAIGHT)
+//      {
+//        pathway.add(currentTrack);
+//        currentTrack.setLocked(true);
+//        currentTrack = nextTrack;
+//        nextTrack = currentTrack.getNextTrack(direction);
+//      }
+//      else if(nextTrack.getTrackType() == TrackType.STATION)
+//      {
+//        nextTrack = destination;
+//      }
+//      else
+//      {
+//        pathway.add(currentTrack);
+//        currentTrack.setLocked(true);
+//        currentTrack = nextTrack;
+//        nextTrack = currentTrack.getNextTrack(direction);
+//      }
+//    }
 
     //TODO
     // SPECIFICATIONS:
@@ -102,6 +111,31 @@ public class Train
     //Should go through and reset switch and lights corresponding to that switch.
   }
   
+  public synchronized void readMessage(Message msg)
+  {
+    switch (msg.messageType)
+    {
+      case FOUND:
+        sendMessage(new Message(name, MessageType.SECURE, msg.sender, direction));
+        break;
+    
+      case SECURED:
+        sendMessage(new Message(name, MessageType.MOVE, msg.sender, direction));
+        break;
+    }
+  }
+  
+  public synchronized void receiveMessage(Message msg)
+  {
+    messages.add(msg);
+  }
+  
+  public synchronized void sendMessage(Message msg)
+  {
+    msg.print(-1,-1);
+    currentTrack.receiveMessage(msg);
+  }
+  
   public void setDirection(Direction direction)
   {
     this.direction = direction;
@@ -112,7 +146,8 @@ public class Train
     return direction;
   }
 
-  public void printDirection() {
+  public void printDirection()
+  {
     if(direction == Direction.RIGHT) System.out.println("Right");
     else if(direction == Direction.LEFT) System.out.println("Left");
   }
@@ -145,5 +180,32 @@ public class Train
     }
     
     trainView.move(x, y);
+  }
+  
+  public synchronized void readNextMessage()
+  {
+    Message msg = messages.poll();
+    messages.remove(msg);
+    if(msg != null)
+    {
+      readMessage(msg);
+    }
+  }
+  
+  @Override
+  public void run()
+  {
+    Message msg;
+    while(true)
+    {
+      readNextMessage();
+      //      try{
+      //        Thread.sleep(50);
+      //      } catch (InterruptedException e)
+      //      {
+      //        System.out.println(Thread.currentThread().getName()+" died.");
+      //        break;
+      //      }
+    }
   }
 }

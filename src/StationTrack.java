@@ -15,20 +15,18 @@ public class StationTrack extends Track
   /**
    * Takes a train name and a destination station name, finds that train within the station (if it is there), then
    * sets the train on the track, secures the route, and sends the train on its way.
-   * @param trainName
-   * @param destination
+   * @param trip
    */
-  public void startTrain(String trainName, StationTrack destination)
+  public void startTrain(Trip trip)
   {
-    Train train = findTrain(trainName);
+    Train train = findTrain(trip.train);
     if(train != null)
     {
       train.setDirection(initDirection());
       train.setCurrentTrack(this);
       super.setTrain(train);
       trains.remove(train);
-      train.secureRoute(destination);
-      moveTrain();
+      train.sendOff(trip.destination);
     }
   }
   
@@ -38,25 +36,56 @@ public class StationTrack extends Track
     train.setCurrentTrack(this);
   }
   
-  @Override
-  public void moveTrain()
+  public String getName()
   {
-    if(getNextTrack(getTrain().getDirection()) == null)
+    return name;
+  }
+  
+  @Override
+  public synchronized void readMessage(Message msg)
+  {
+    if(msg.isRecipient(this))
     {
-      trains.add(getTrain());
-      System.out.println("Train is now in Station "+ name);
-      setTrain(null);
+      System.out.println("Station "+name+ "received the message:");
+      msg.print(getX(), getY());
+      switch(msg.messageType)
+      {
+        //Do something
+        
+        case SEARCH:
+          sendMessageToNextTrack(new Message(name, MessageType.FOUND, msg.sender, msg.msgDir.getOpposite()));
+          break;
+          
+        case SECURE:
+          sendMessageToNextTrack(new Message(name, MessageType.SECURED, msg.sender, msg.msgDir.getOpposite()));
+          break;
+          
+        default:
+          break;
+      }
     }
     
     else
     {
-      super.moveTrain();
+      super.readMessage(msg);
     }
   }
   
-  public String getName()
+  @Override
+  public synchronized void moveTrain()
   {
-    return name;
+    if(getTrain() != null)
+    {
+      if (getNextTrack(getTrain().getDirection()) == null)
+      {
+        trains.add(getTrain());
+        System.out.println("Train is now in Station " + name);
+        setTrain(null);
+      } else
+      {
+        super.moveTrain();
+      }
+    }
   }
   
   private Train findTrain(String trainName)

@@ -25,9 +25,6 @@ public class TrackMaker
                                               {'@', '-', '*', '-', '(', ']', '-', '&'},
                                               {'@', '%', '-', '-', '-', '(', '-', '&'}};
 
-
-  /*private static final char [][] CHAR_MAP = {{'@', '-', '&'},
-                                            {'@', '-', '&'}};*/
   public static final int FONT_SIZE = 27;
   public static final double IMAGE_WIDTH = SmartRailsWindow.WINDOW_WIDTH/CHAR_MAP[1].length;
   public static final double IMAGE_HEIGHT = SmartRailsWindow.WINDOW_HEIGHT/CHAR_MAP.length;
@@ -139,7 +136,7 @@ public class TrackMaker
             break;
         }
         
-        new Thread(track).start();
+        //new Thread(track).start();
         trackMap[i][j] = track;
         track.setLeft(prev);
         

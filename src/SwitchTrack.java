@@ -30,6 +30,13 @@ public class SwitchTrack extends Track
     
     return super.getNextTrack(direction);
   }
+
+  public void setSwitchOn(boolean switchOn)
+  {
+    this.switchOn = switchOn;
+  }
+
+  public boolean getSwitchOn() { return switchOn; }
   
   /**
    * Sets the reference to the track that the switch is connected to.
@@ -39,12 +46,5 @@ public class SwitchTrack extends Track
   {
     this.connection = connection;
   }
-  
-  /**
-   * Changes the direction of the switch.
-   */
-  public void setSwitch(boolean switchOn)
-  {
-    this.switchOn = switchOn;
-  }
+
 }

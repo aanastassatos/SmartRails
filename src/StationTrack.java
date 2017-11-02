@@ -18,7 +18,7 @@ public class StationTrack extends Track
    * @param trainName
    * @param destination
    */
-  public void startTrain(String trainName, StationTrack destination)
+  public void startTrain(String trainName, String destination)
   {
     Train train = findTrain(trainName);
     if(train != null)
@@ -27,7 +27,7 @@ public class StationTrack extends Track
       train.setCurrentTrack(this);
       super.setTrain(train);
       trains.remove(train);
-      train.secureRoute(destination);
+      train.findRoute(destination);
       moveTrain();
     }
   }

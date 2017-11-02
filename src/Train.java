@@ -1,3 +1,4 @@
+
 import java.util.ArrayList;
 
 public class Train
@@ -45,42 +46,84 @@ public class Train
     trainView = new TrainView(trainImageName);
   }
 
+  public Direction opDirection()
+  {
+    if(direction == Direction.LEFT) return Direction.RIGHT;
+    else if(direction == Direction.RIGHT) return Direction.LEFT;
+    else if(direction == Direction.DOWN) return Direction.UP;
+    else if(direction == Direction.UP) return Direction.DOWN;
+    else return null;
+  }
+
+  private boolean trackTypeIsSwitch(TrackType trackType)
+  {
+    if(trackType == TrackType.RIGHT_UP_SWITCH) return true;
+    else if(trackType == TrackType.RIGHT_DOWN_SWITCH) return true;
+    else if(trackType == TrackType.LEFT_UP_SWITCH) return true;
+    else if(trackType == TrackType.LEFT_DOWN_SWITCH) return true;
+    return false;
+  }
+
   /**
    * Takes the destination name, and goes through the track, securing the route to the destination by flipping track
    * switches, and turning stop lights red.
    * @param destination
+   *
+   * will currently set the path to found for tracks with one switch
    */
-
-  public void secureRoute(StationTrack destination)
+  public void findRoute(String destination)
   {
-    ArrayList<Track> pathway = new ArrayList<>();
     Track nextTrack = currentTrack.getNextTrack(direction);
-    while (nextTrack != destination)
+    currentTrack.setMessage(MessageType.FOUND);
+    boolean pathFound = false;
+    while (!pathFound)
     {
-      if(nextTrack.getTrackType() == TrackType.STRAIGHT)
+      TrackType tT = nextTrack.getTrackType();
+      if(tT == TrackType.STRAIGHT || tT == TrackType.LIGHT || trackTypeIsSwitch(tT))
       {
-        pathway.add(currentTrack);
-        currentTrack.setLocked(true);
-        currentTrack = nextTrack;
-        nextTrack = currentTrack.getNextTrack(direction);
+        if(nextTrack.getMessage() != MessageType.SECURED)
+        {
+          nextTrack.setMessage(MessageType.FOUND);
+          currentTrack = nextTrack;
+          nextTrack = currentTrack.getNextTrack(direction);
+        }
       }
-      else if(nextTrack.getTrackType() == TrackType.STATION)
+      else if(tT == TrackType.STATION)
       {
-        nextTrack = destination;
-      }
-      else if(nextTrack.getTrackType() == TrackType.LIGHT)
-      {
-        pathway.add(currentTrack);
-        currentTrack.setLocked(true);
-        currentTrack = nextTrack;
-        nextTrack = currentTrack.getNextTrack(direction);
-      }
-      else
-      {
-        pathway.add(currentTrack);
-        currentTrack.setLocked(true);
-        currentTrack = nextTrack;
-        nextTrack = currentTrack.getNextTrack(direction);
+        if(((StationTrack)nextTrack).getName().equals(destination))
+        {
+          pathFound = true;
+          nextTrack.setMessage(MessageType.FOUND);
+        }
+        else
+        {
+          currentTrack = nextTrack;
+          nextTrack = currentTrack.getNextTrack(opDirection());
+          TrackType nextTrackType = nextTrack.getTrackType();
+          boolean toBreak = false;
+          while(nextTrackType != TrackType.STATION && !toBreak)
+          {
+            if(trackTypeIsSwitch(nextTrackType))
+            {
+              if(!((SwitchTrack)nextTrack).getSwitchOn()) toBreak = true;
+            }
+            nextTrack.setMessage(MessageType.NOTFOUND);
+            currentTrack = nextTrack;
+            nextTrack = currentTrack.getNextTrack(opDirection());
+            nextTrackType = nextTrack.getTrackType();
+          }
+          if(trackTypeIsSwitch(nextTrackType))
+          {
+            ((SwitchTrack)nextTrack).setSwitchOn(true);
+            currentTrack = nextTrack;
+            nextTrack = currentTrack.getNextTrack(direction);
+          }
+          else if(nextTrack.getTrackType() == TrackType.STATION)
+          {
+            System.out.println("NO PATH FOUND");
+            //no path can be found
+          }
+        }
       }
     }
 

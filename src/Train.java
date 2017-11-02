@@ -49,21 +49,32 @@ public class Train implements Runnable
     
     trainView = new TrainView(trainImageName);
   }
-
+  
   public void sendOff(String destination)
   {
     currentTrack.receiveMessage(new Message(name, MessageType.SEARCH, destination, direction));
+  }
+
+  private boolean trackTypeIsSwitch(TrackType trackType)
+  {
+    if(trackType == TrackType.RIGHT_UP_SWITCH) return true;
+    else if(trackType == TrackType.RIGHT_DOWN_SWITCH) return true;
+    else if(trackType == TrackType.LEFT_UP_SWITCH) return true;
+    else if(trackType == TrackType.LEFT_DOWN_SWITCH) return true;
+    return false;
   }
   
   /**
    * Takes the destination name, and goes through the track, securing the route to the destination by flipping track
    * switches, and turning stop lights red.
    * @param destination
+   *
+   * will currently set the path to found for tracks with one switch
    */
   public void secureRoute(String destination)
   {
-    ArrayList<Track> pathway = new ArrayList<>();
-    Track nextTrack = currentTrack.getNextTrack(direction);
+  
+  }
 //    while (nextTrack.getName() != destination)
 //    {
 //      if(nextTrack.getTrackType() == TrackType.STRAIGHT)
@@ -85,6 +96,61 @@ public class Train implements Runnable
 //        nextTrack = currentTrack.getNextTrack(direction);
 //      }
 //    }
+//  public void findRoute(String destination)
+//  {
+//    Track nextTrack = currentTrack.getNextTrack(direction);
+//    currentTrack.setMessage(MessageType.FOUND);
+//    boolean pathFound = false;
+//    while (!pathFound)
+//    {
+//      TrackType tT = nextTrack.getTrackType();
+//      if(tT == TrackType.STRAIGHT || tT == TrackType.LIGHT || trackTypeIsSwitch(tT))
+//      {
+//        if(nextTrack.getMessage() != MessageType.SECURED)
+//        {
+//          nextTrack.setMessage(MessageType.FOUND);
+//          currentTrack = nextTrack;
+//          nextTrack = currentTrack.getNextTrack(direction);
+//        }
+//      }
+//      else if(tT == TrackType.STATION)
+//      {
+//        if(((StationTrack)nextTrack).getName().equals(destination))
+//        {
+//          pathFound = true;
+//          nextTrack.setMessage(MessageType.FOUND);
+//        }
+//        else
+//        {
+//          currentTrack = nextTrack;
+//          nextTrack = currentTrack.getNextTrack(opDirection());
+//          TrackType nextTrackType = nextTrack.getTrackType();
+//          boolean toBreak = false;
+//          while(nextTrackType != TrackType.STATION && !toBreak)
+//          {
+//            if(trackTypeIsSwitch(nextTrackType))
+//            {
+//              if(!((SwitchTrack)nextTrack).getSwitchOn()) toBreak = true;
+//            }
+//            nextTrack.setMessage(MessageType.NOTFOUND);
+//            currentTrack = nextTrack;
+//            nextTrack = currentTrack.getNextTrack(opDirection());
+//            nextTrackType = nextTrack.getTrackType();
+//          }
+//          if(trackTypeIsSwitch(nextTrackType))
+//          {
+//            ((SwitchTrack)nextTrack).setSwitchOn(true);
+//            currentTrack = nextTrack;
+//            nextTrack = currentTrack.getNextTrack(direction);
+//          }
+//          else if(nextTrack.getTrackType() == TrackType.STATION)
+//          {
+//            System.out.println("NO PATH FOUND");
+//            //no path can be found
+//          }
+//        }
+//      }
+//    }
 
     //TODO
     // SPECIFICATIONS:
@@ -97,7 +163,6 @@ public class Train implements Runnable
     // and change the appropriate lights in order to get the train to its destination.  If the route is secured by another
     // train, secure the route up to the first red light rail so the train can move to that light track where it should
     // wait for track to be freed.
-  }
 
   /**
    * Frees the route behind where a train has already moved.

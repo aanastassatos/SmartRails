@@ -4,9 +4,11 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 public class Track implements Runnable
 {
   private TrackType trackType; //Enum denoting the type of track this is.
+  private MessageType message;
   private Train train;  //Train that is currently on the track. Null if none.
   private Track left; //Reference to track piece to the left.
   private Track right;  //Reference to track piece to the left.
+
   private Queue <Message> messages;
   private boolean locked = false;
   private double x;
@@ -31,6 +33,10 @@ public class Track implements Runnable
     if(direction == Direction.RIGHT) return right;
     return left;
   }
+
+  public void setMessage(MessageType message) { this.message = message; }
+
+  public MessageType getMessage() { return message; }
   
   /**
    * Gets the track piece to the right.
@@ -58,7 +64,7 @@ public class Track implements Runnable
   {
     return left;
   }
-
+  
   public synchronized void setLocked(boolean locked)
   {
     this.locked = locked;

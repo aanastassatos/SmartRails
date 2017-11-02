@@ -20,14 +20,11 @@ public class TrackMaker
   //] = Left switch down
   //z = Z switch
   //s = S switch
-  private static final char [][] CHAR_MAP =  {{'@', '-', ']', '-', '-', '-', '-', '&'},
+  private static final char [][] CHAR_MAP =  {{'@', '-', ']', '-', '-', '*', '-', '&'},
                                               {'@', '-', '(', '-', ']', '-', '-', '&'},
-                                              {'@', '-', '-', '-', '(', ']', '-', '&'},
-                                              {'@', '-', '-', '-', '-', '(', '-', '&'}};
+                                              {'@', '-', '*', '-', '(', ']', '-', '&'},
+                                              {'@', '%', '-', '-', '-', '(', '-', '&'}};
 
-
-  /*private static final char [][] CHAR_MAP = {{'@', '-', '&'},
-                                            {'@', '-', '&'}};*/
   public static final int FONT_SIZE = 27;
   public static final double IMAGE_WIDTH = SmartRailsWindow.WINDOW_WIDTH/CHAR_MAP[1].length;
   public static final double IMAGE_HEIGHT = SmartRailsWindow.WINDOW_HEIGHT/CHAR_MAP.length;

@@ -30,6 +30,13 @@ public class SwitchTrack extends Track
     
     return super.getNextTrack(direction);
   }
+
+  public void setSwitchOn(boolean switchOn)
+  {
+    this.switchOn = switchOn;
+  }
+
+  public boolean getSwitchOn() { return switchOn; }
   
   @Override
   public synchronized void sendMessageToNextTrack(Message msg)

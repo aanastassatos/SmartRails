@@ -144,16 +144,6 @@ public class Track implements Runnable
     }
   }
   
-//  public void kill()
-//  {
-//    while(Thread.currentThread().isAlive())
-//    {
-//      Thread.currentThread().interrupt();
-//    }
-//
-//    if(getNextTrack(Direction.RIGHT) != null) getNextTrack(Direction.RIGHT).kill();
-//  }
-  
   public double getX()
   {
     return x;
@@ -167,11 +157,6 @@ public class Track implements Runnable
   public synchronized void receiveMessage(Message msg)
   {
     messages.add(msg);
-  }
-  
-  public synchronized void printMessages()
-  {
-
   }
   
   public synchronized void readMessage(Message msg)
@@ -237,25 +222,10 @@ public class Track implements Runnable
   @Override
   public void run()
   {
-    Message msg;
     System.out.println(x+", "+y+": "+Thread.currentThread().getName());
     while(true)
     {
       readNextMessage();
-//      if(messages.size() > 0)
-//      {
-//        msg = messages.get(0);
-//        msg.print(0, 0);
-//        readMessage(msg);
-//        messages.remove(msg);
-//      }
-      //      try{
-//        Thread.sleep(50);
-//      } catch (InterruptedException e)
-//      {
-//        System.out.println(Thread.currentThread().getName()+" died.");
-//        break;
-//      }
     }
   }
 }

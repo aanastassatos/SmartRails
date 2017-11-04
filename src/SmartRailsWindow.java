@@ -3,36 +3,43 @@ import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.control.Button;
-import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.Pane;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
 import javafx.stage.Stage;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.Random;
 
 public class SmartRailsWindow extends Application
 {
-  public static final int WINDOW_WIDTH = 1600;
-  public static final int WINDOW_HEIGHT = 800;
-  public static final int NUM_TRAINS = 3;
-  public static Random rand = new Random();
-  
+  static final int WINDOW_WIDTH = 1400;
+  static final int WINDOW_HEIGHT = 700;
+  static Random rand = new Random();
+
+  private static final int NUM_TRAINS = 3;
+
+  /**
+   * main method of project SmartRails
+   * @param args
+   */
   public static void main(String[] args)
   {
     launch(args);
   }
-  
+
+  /**
+   * start() method from Application class
+   * @param stage
+   * @throws Exception
+   */
   @Override
   public void start(Stage stage) throws Exception
   {
     //String musicFile = SmartRailsWindow.class.getResource("ThomasTheTank.mp3").toString();
-//    String musicFile = new File("src/ThomasTheTank.mp3").toURI().toString();
-//    Media sound = new Media(musicFile);
-//    MediaPlayer mediaPlayer = new MediaPlayer(sound);
-//    mediaPlayer.play();
+    String musicFile = new File("src/res/ThomasTheTank.mp3").toURI().toString();
+    Media sound = new Media(musicFile);
+    MediaPlayer mediaPlayer = new MediaPlayer(sound);
+    mediaPlayer.play();
     Group root = new Group();
     Canvas canvas = new Canvas(WINDOW_WIDTH, WINDOW_HEIGHT);
     TrackMaker track = new TrackMaker(NUM_TRAINS, canvas.getGraphicsContext2D());

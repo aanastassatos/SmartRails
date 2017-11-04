@@ -1,19 +1,38 @@
-public class Message
+/**
+ * Message class
+ */
+
+class Message
 {
-  String sender;
-  String recipient;
+  String sender; //Train name of sender of message
+  String recipient; //StationTrack of destination
   MessageType messageType;
-  Direction msgDir;
-  
-  public Message(String sender, MessageType messageType, String recipient, Direction msgDir)
+  Direction msgDir; //Direction to send the message
+  boolean forward;
+
+  /**
+   * Message constructor:
+   * @param sender
+   * @param messageType
+   * @param recipient
+   * @param msgDir
+   * @param forward
+   */
+  Message(String sender, MessageType messageType, String recipient, Direction msgDir, boolean forward)
   {
     this.sender = sender;
     this.messageType = messageType;
     this.recipient = recipient;
     this.msgDir = msgDir;
+    this.forward = forward;
   }
-  
-  public boolean isRecipient(Object obj)
+
+  /**
+   * isRecipient() method:
+   * @param obj:
+   * @return true if obj is intended recipient
+   */
+  boolean isRecipient(Object obj)
   {
     if(obj instanceof Train)
     {
@@ -27,13 +46,19 @@ public class Message
     
     return false;
   }
-  
-  public void print(double x, double y)
+
+  /**
+   * print() method:
+   * @param x: x coordinate
+   * @param y
+   */
+  void print(double x, double y)
   {
     System.out.println("Location: "+x+", "+y+"\n" +
                        "Sender: "+sender+"\n" +
                        "Message: "+messageType+"\n"+
                        "Recipient: "+recipient+"\n" +
-                       "Direction: "+msgDir+"\n");
+                       "Direction: "+msgDir+"\n" +
+                       "Forward: "+forward+"\n");
   }
 }

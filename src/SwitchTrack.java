@@ -1,9 +1,21 @@
+/**
+ * SwitchTrack class extends Track
+ * Is used for all switch tracks
+ *
+ *
+ */
 
 public class SwitchTrack extends Track
 {
-  private boolean switchOn;
-  SwitchTrack connection;
+  private boolean switchOn; //If on, switch track will move train to switched line
+  SwitchTrack connection; //SwitchTrack connected to current switch track
 
+  /**
+   * SwitchTrack() Constructor:
+   * @param trackType: Track type to be set in Track class
+   * @param x: x coordinate for track image
+   * @param y: y coordinate for track image
+   */
   SwitchTrack(TrackType trackType, double x, double y)
   {
     super(trackType, x, y);
@@ -11,10 +23,12 @@ public class SwitchTrack extends Track
   }
   
   /**
-   * Returns the next track in the given direction. If the switch is on and the direction corresponds with the switch,
-   * the connection is returned.
-   * @param direction
-   * @return
+   * getNextTrack() method:
+   * @param direction: Direction to pull track from
+   * @return Track on correct direction of current track
+   *
+   *                Returns track in direction of parameter direction
+   *                If switch is on, returns track on next line
    */
   @Override
   public Track getNextTrack(Direction direction)
@@ -31,31 +45,98 @@ public class SwitchTrack extends Track
     return super.getNextTrack(direction);
   }
 
-  public void setSwitchOn(boolean switchOn)
+  /**
+   * readMessage() method:
+   * @param msg: Message to be read
+   * No output
+   *              Depending on message type, sends message
+   *              to next track
+   */
+  @Override
+  public synchronized void readMessage(Message msg)
   {
-    this.switchOn = switchOn;
+    //System.out.println("Currently at switch");
+    msg.print(getX(), getY());
+    switch (msg.messageType)
+    {
+      case MOVE:
+        moveTrain();
+        break;
+
+      case SECURE:
+        if(getNextTrack(msg.msgDir).message == MessageType.FOUND)
+        {
+          secureTrack(msg);
+          sendMessageToNextTrack(msg);
+        }
+        else
+        {
+          switchOn = !switchOn;
+          if(getNextTrack(msg.msgDir).message == MessageType.FOUND)
+          {
+            secureTrack(msg);
+            sendMessageToNextTrack(msg);
+          }
+          else
+          {
+            switchOn = ! switchOn;
+          }
+        }
+        break;
+
+      case FREE:
+        if(msg.forward) freeTrack(msg);
+        break;
+
+      default:
+        sendMessageToNextTrack(msg);
+        break;
+    }
   }
 
-  public boolean getSwitchOn() { return switchOn; }
-  
+  /**
+   * sendMessageToNextTrack() method:
+   * @param msg: Message to be sent
+   *
+   *           If searching in forward direction, splits
+   *           message and sends on both sides of switch track
+   *           If searching in backward direction, only sends
+   *           message in direction according to switchOn field
+   */
   @Override
   public synchronized void sendMessageToNextTrack(Message msg)
   {
-    Boolean switchValue = switchOn;
-    
-    switchOn = false;
-    getNextTrack(msg.msgDir).receiveMessage(msg);
-    switchOn = true;
-    getNextTrack(msg.msgDir).receiveMessage(msg);
-    
-    switchOn = switchValue;
+    if(msg.forward)
+    {
+      Boolean switchValue = switchOn;
+
+      switchOn = false;
+      getNextTrack(msg.msgDir).receiveMessage(msg);
+
+      switchOn = true;
+      getNextTrack(msg.msgDir).receiveMessage(msg);
+
+      switchOn = switchValue;
+    }
+    else
+    {
+      switchOn = false;
+      MessageType nextType = getNextTrack(msg.msgDir).message;
+      if(!(nextType == MessageType.SEARCH || nextType == MessageType.FOUND))
+      {
+        switchOn = true;
+      }
+      getNextTrack(msg.msgDir).receiveMessage(msg);
+    }
   }
   
   /**
-   * Sets the reference to the track that the switch is connected to.
-   * @param connection
+   * setConnection() method:
+   * @param connection: SwitchTrack to be set as connection
+   * No output
+   *                  Sets this instances connection SwitchTrack to connection
    */
-  public void setConnection(SwitchTrack connection)
+  void setConnection(SwitchTrack connection)
   {
     this.connection = connection;
   }
@@ -70,7 +151,7 @@ public class SwitchTrack extends Track
   
   /**
    * Returns whether or not the switch is on.
-   * @return
+   * @return boolean true if switch is on
    */
   public boolean isSwitchOn()
   {

@@ -8,7 +8,7 @@ import javax.swing.event.ChangeListener;
 import java.util.ArrayList;
 import java.util.Iterator;
 
-public class TrackMaker
+class TrackMaker
 {
   //@ = Station
   //- = Regular Track
@@ -20,14 +20,14 @@ public class TrackMaker
   //] = Left switch down
   //z = Z switch
   //s = S switch
-  private static final char [][] CHAR_MAP =  {{'@', '-', ']', '-', '-', '*', '-', '&'},
-                                              {'@', '-', '(', '-', ']', '-', '-', '&'},
+  private static final char [][] CHAR_MAP =  {{'@', '-', '-', ']', '-', '*', '-', '&'},
+                                              {'@', '-', '-', '(', ']', '-', '-', '&'},
                                               {'@', '-', '*', '-', '(', ']', '-', '&'},
-                                              {'@', '%', '-', '-', '-', '(', '-', '&'}};
+                                              {'@', '-', '-', '-', '-', '(', '-', '&'}};
 
-  public static final int FONT_SIZE = 27;
-  public static final double IMAGE_WIDTH = SmartRailsWindow.WINDOW_WIDTH/CHAR_MAP[1].length;
-  public static final double IMAGE_HEIGHT = SmartRailsWindow.WINDOW_HEIGHT/CHAR_MAP.length;
+  private static final int FONT_SIZE = 27;
+  private static final double IMAGE_WIDTH = SmartRailsWindow.WINDOW_WIDTH/CHAR_MAP[1].length;
+  private static final double IMAGE_HEIGHT = SmartRailsWindow.WINDOW_HEIGHT/CHAR_MAP.length;
   private final Image STRAIGHT_RAIL = res.ResourceLoader.getTrackImage("straightrail.png", IMAGE_WIDTH, IMAGE_HEIGHT);
   private final Image RED_LIGHT_RAIL = res.ResourceLoader.getTrackImage("redlightrail.png", IMAGE_WIDTH, IMAGE_HEIGHT);
   private final Image GREEN_LIGHT_RAIL = res.ResourceLoader.getTrackImage("greenlightrail.png", IMAGE_WIDTH, IMAGE_HEIGHT);
@@ -41,10 +41,20 @@ public class TrackMaker
   private ArrayList<Line> lines = new ArrayList<>();
   private ArrayList<TrainView> trainViews = new ArrayList<>();
   
-  public TrackMaker(int num_trains, GraphicsContext gc)
+  TrackMaker(int num_trains, GraphicsContext gc)
   {
     makeTrack(gc);
     makeTrains(num_trains);
+  }
+
+  ArrayList<Line> getLines()
+  {
+    return lines;
+  }
+
+  ArrayList<TrainView> getTrainViews()
+  {
+    return trainViews;
   }
   
   private void makeTrack(GraphicsContext gc)
@@ -183,23 +193,4 @@ public class TrackMaker
       }
     }
   }
-  
-  public ArrayList<Line> getLines()
-  {
-    return lines;
-  }
-  
-  public ArrayList<TrainView> getTrainViews()
-  {
-    return trainViews;
-  }
-  
-  public int getLengthofLine()
-  {
-    return CHAR_MAP[0].length;
-  }
-
-  public double getImageWidth() { return IMAGE_WIDTH; }
-
-  public double getImageHeight() { return IMAGE_HEIGHT; }
 }

@@ -1,23 +1,53 @@
+import java.util.ArrayList;
+
+/**
+ * SwitchTrack class extends Track
+ * Is used for all switch tracks
+ *
+ *
+ */
 
 public class SwitchTrack extends Track
 {
-  private boolean switchOn;
-  SwitchTrack connection;
+  private boolean switchOn; //If on, switch track will move train to switched line
+  private SwitchTrack connection; //SwitchTrack connected to current switch track
+  private Direction switchDirection;
 
+  /**
+   * SwitchTrack() Constructor:
+   * @param trackType: Track type to be set in Track class
+   * @param x: x coordinate for track image
+   * @param y: y coordinate for track image
+   */
   SwitchTrack(TrackType trackType, double x, double y)
   {
     super(trackType, x, y);
     switchOn = false;
+    
+    switch (trackType)
+    {
+      case LEFT_DOWN_SWITCH:
+      case LEFT_UP_SWITCH:
+        switchDirection = Direction.LEFT;
+        break;
+      
+      case RIGHT_UP_SWITCH:
+      case RIGHT_DOWN_SWITCH:
+        switchDirection = Direction.RIGHT;
+        break;
+    }
   }
   
   /**
-   * Returns the next track in the given direction. If the switch is on and the direction corresponds with the switch,
-   * the connection is returned.
-   * @param direction
-   * @return
+   * getNextTrack() method:
+   * @param direction: Direction to pull track from
+   * @return Track on correct direction of current track
+   *
+   *                Returns track in direction of parameter direction
+   *                If switch is on, returns track on next line
    */
   @Override
-  public Track getNextTrack(Direction direction)
+  synchronized Track getNextTrack(Direction direction)
   {
     TrackType trackType = getTrackType();
     if(switchOn)
@@ -31,31 +61,80 @@ public class SwitchTrack extends Track
     return super.getNextTrack(direction);
   }
 
-  public void setSwitchOn(boolean switchOn)
-  {
-    this.switchOn = switchOn;
-  }
+//  /**
+//   * readMessage() method:
+//   * @param msg: Message to be read
+//   * No output
+//   *              Depending on message type, sends message
+//   *              to next track
+//   */
+//  @Override
+//  synchronized void readMessage(Message msg)
+//  {
+//    //System.out.println("Currently at switch");
+//    msg.print(getX(), getY());
+//    switch (msg.messageType)
+//    {
+//      case SECURE:
+//        secureTrack(msg);
+//        break;
+//
+//      case SEARCH:
+//
+//      case FREE:
+//          freeTrack(msg);
+//        break;
+//
+//      default:
+//        super.readMessage(msg);
+//        break;
+//    }
+//  }
 
-  public boolean getSwitchOn() { return switchOn; }
+  /**
+   * sendMessageToNextTrack() method:
+   * @param msg: Message to be sent
+   *
+   *           If searching in forward direction, splits
+   *           message and sends on both sides of switch track
+   *           If searching in backward direction, only sends
+   *           message in direction according to switchOn field
+   */
+  @Override
+  synchronized void sendMessageToNextTrack(Message msg)
+  {
+    super.getNextTrack(msg.msgDir).receiveMessage(msg);
+    if(connection.switchDirection == msg.msgDir && (msg.messageType == MessageType.SEARCH ||
+        (msg.messageType == MessageType.FOUND && ((Track)connection).findCorrespondence(msg).contains(MessageType.SEARCH))))
+    {
+      connection.receiveMessage(msg);
+    }
+  }
   
   @Override
-  public synchronized void sendMessageToNextTrack(Message msg)
+  synchronized void secureTrack(Message msg)
   {
-    Boolean switchValue = switchOn;
-    
-    switchOn = false;
-    getNextTrack(msg.msgDir).receiveMessage(msg);
-    switchOn = true;
-    getNextTrack(msg.msgDir).receiveMessage(msg);
-    
-    switchOn = switchValue;
+    Correspondence c = findCorrespondence(msg);
+    if(c.contains(MessageType.SEARCH) && c.contains(MessageType.FOUND))
+    {
+      System.out.println("Track " + getX() + ", " + getY() + " is locked");
+      locked = true;
+      c = connection.findCorrespondence(msg);
+      if(c.contains(MessageType.SEARCH) && c.contains(MessageType.FOUND))
+      {
+        switchDirection(true);
+      }
+      
+    }
   }
   
   /**
-   * Sets the reference to the track that the switch is connected to.
-   * @param connection
+   * setConnection() method:
+   * @param connection: SwitchTrack to be set as connection
+   * No output
+   *                  Sets this instances connection SwitchTrack to connection
    */
-  public void setConnection(SwitchTrack connection)
+  void setConnection(SwitchTrack connection)
   {
     this.connection = connection;
   }
@@ -63,16 +142,34 @@ public class SwitchTrack extends Track
   /**
    * Changes the direction of the switch.
    */
-  public void switchDirection(boolean switchOn)
+  synchronized void switchDirection(boolean switchOn)
   {
+    this.switchOn = false;
+    changeLight(switchOn);
     this.switchOn = switchOn;
+  }
+  
+  synchronized void changeLight(boolean lightOn)
+  {
+    Message msg0;
+    if(lightOn)
+    {
+      msg0 = new Message(null, MessageType.LIGHTON, null, switchDirection.getOpposite());
+    }
+    
+    else
+    {
+      msg0 = new Message(null, MessageType.LIGHTOFF, null, switchDirection.getOpposite());
+    }
+    
+    super.getNextTrack(msg0.msgDir).receiveMessage(msg0);
   }
   
   /**
    * Returns whether or not the switch is on.
-   * @return
+   * @return boolean true if switch is on
    */
-  public boolean isSwitchOn()
+  boolean isSwitchOn()
   {
     return switchOn;
   }

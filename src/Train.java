@@ -1,67 +1,58 @@
+/**
+ * Train class (implements Runnable interface)
+ *
+ *
+ */
+
 import java.util.*;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class Train implements Runnable
 {
-  private Track currentTrack;
-  private Direction direction;
-  private String name;
-  private TrainView trainView;
-  private String destination;
-  private Queue<Message> messages;
-  
-  public Train(String name)
+  private Track currentTrack;  //Track the train is currently on
+  private Direction direction; //Direction of train
+  private String name;  //Train name
+  private TrainView trainView; //Draw/redraw train
+  private String destination; //Station destination for train
+  private Queue<Message> messages; //All messages to be executed
+  private Queue<String> schedule;
+
+  /**
+   * Train constructor:
+   * @param name: Name to be associated with train
+   * No output
+   *
+   *            Picks random color to be associated with train instance,
+   *            sets name, trainImageName, and trainView
+   *            instanciates messages Queue
+   */
+  Train(String name)
   {
     this.name = name;
-    String trainImageName = "Train_";
     messages = new ConcurrentLinkedQueue<>();
-    
-    double random = SmartRailsWindow.rand.nextInt((5-1)+1) + 1;
-    
-    switch((int)random)
-    {
-      case 1:
-        trainImageName = trainImageName + "Blue";
-        break;
-  
-      case 2:
-        trainImageName = trainImageName + "Green";
-        break;
-  
-      case 3:
-        trainImageName = trainImageName + "Purple";
-        break;
-        
-      case 4:
-        trainImageName = trainImageName + "Red";
-        break;
-      
-      case 5:
-        trainImageName = trainImageName + "Yellow";
-        break;
-        
-      default:
-        trainImageName = "train";
-        break;
-    }
-    
-    trainImageName = trainImageName + ".png";
-    
-    trainView = new TrainView(trainImageName);
+    schedule = new ConcurrentLinkedQueue<>();
+    new Thread(this).start();
   }
   
-  public void sendOff(String destination)
+  public void setSchedule(Queue<String> schedule)
   {
-    currentTrack.receiveMessage(new Message(name, MessageType.SEARCH, destination, direction));
+    this.schedule = schedule;
   }
 
-  private boolean trackTypeIsSwitch(TrackType trackType)
+  /**
+   * sendOff() method:
+   * @param destination: String name of destination station track
+   * No output
+   *
+   *                   sends current track first search message
+   */
+  void sendOff(String destination)
   {
-    if(trackType == TrackType.RIGHT_UP_SWITCH) return true;
-    else if(trackType == TrackType.RIGHT_DOWN_SWITCH) return true;
-    else if(trackType == TrackType.LEFT_UP_SWITCH) return true;
-    else if(trackType == TrackType.LEFT_DOWN_SWITCH) return true;
-    return false;
+    if(!currentTrack.isOccupied())
+    {
+      currentTrack.setTrain(this);
+      currentTrack.receiveMessage(new Message(name, MessageType.SEARCH, destination, direction));
+    }
   }
   
   /**
@@ -175,9 +166,18 @@ public class Train implements Runnable
     //
     //Should go through and reset switch and lights corresponding to that switch.
   }
-  
-  public synchronized void readMessage(Message msg)
+
+  /**
+   * readMessage() method:
+   * @param msg: Message to be read
+   * No output
+   *
+   *           if message type is found, sends message to secure
+   *           if message type is secured, sends message to move the train
+   */
+  private synchronized void readMessage(Message msg)
   {
+    msg.print(-1,-1);
     switch (msg.messageType)
     {
       case FOUND:
@@ -187,53 +187,120 @@ public class Train implements Runnable
       case SECURED:
         sendMessage(new Message(name, MessageType.MOVE, msg.sender, direction));
         break;
+        
+      case START:
+        sendOff(schedule.poll());
+        break;
+      
+      default:
+        break;
     }
   }
-  
-  public synchronized void receiveMessage(Message msg)
+
+  /**
+   * recieveMessage() method:
+   * @param msg: message to be recieved
+   * No output
+   *
+   *          Adds parameter message to queue of messages to be read
+   */
+  synchronized void receiveMessage(Message msg)
   {
     messages.add(msg);
   }
-  
-  public synchronized void sendMessage(Message msg)
+
+  /**
+   * sendMessage() method:
+   * @param msg: Message to be sent
+   *
+   *           Prints trains current status and sends parameter message to
+   *           current track (track the train is on)
+   */
+  private synchronized void sendMessage(Message msg)
   {
-    msg.print(-1,-1);
     currentTrack.receiveMessage(msg);
   }
-  
-  public void setDirection(Direction direction)
+
+  /**
+   * setDirection() method:
+   * @param direction: direction to be set
+   * No output
+   *
+   *                 Sets instance direction to parameter direction
+   */
+  void setDirection(Direction direction)
   {
     this.direction = direction;
   }
-  
-  public Direction getDirection()
+
+  /**
+   * getDirection() method:
+   * No parameters
+   * @return Current direction train is travelling
+   */
+  Direction getDirection()
   {
     return direction;
   }
 
+  /**
+   * USED IN UNIT TESTING
+   * printDirection() method:
+   * No parameters
+   * No output
+   *
+   *                Prints current train direction to console
+   */
   public void printDirection()
   {
     if(direction == Direction.RIGHT) System.out.println("Right");
     else if(direction == Direction.LEFT) System.out.println("Left");
   }
-  
-  public void setCurrentTrack(Track currentTrack)
+
+  /**
+   * setCurrentTrack() method:
+   * @param currentTrack: track piece
+   * No output
+   *
+   *                    Used to set current track train is on
+   *                    and move train to current track
+   */
+  void setCurrentTrack(Track currentTrack)
   {
     this.currentTrack = currentTrack;
     relocate(currentTrack.getX(), currentTrack.getY());
   }
-  
-  public String getName()
+
+  /**
+   * getName() method:
+   * No parameters
+   * @return String of train name
+   */
+  String getName()
   {
     return name;
   }
-  
-  public TrainView getTrainView()
+
+  /**
+   * getTrainView() method:
+   * No parameters
+   * @return TrainView set to train instance
+   */
+  public void setTrainView(TrainView trainView)
   {
-    return trainView;
+    this.trainView = trainView;
   }
-  
-  public void relocate(double x, double y)
+
+  /**
+   * relocate() method:
+   * @param x: x coordinate to move train to
+   * @param y: y coordinate to move train to
+   * No output
+   *                    If train is at a station, does not
+   *                    show train.  If not, sets trainView to visible
+   *                    so train can be seen on interface at current location
+   */
+  private void relocate(double x, double y)
   {
     if(currentTrack instanceof StationTrack)
     {
@@ -246,8 +313,17 @@ public class Train implements Runnable
     
     trainView.move(x, y);
   }
-  
-  public synchronized void readNextMessage()
+
+  /**
+   * readNextMessage() method:
+   * No parameters
+   * No output
+   *
+   *                    Pulls message from top of messages
+   *                    queue, removes message from queue, and reads
+   *                    message
+   */
+  private synchronized void readNextMessage()
   {
     Message msg = messages.poll();
     messages.remove(msg);
@@ -256,11 +332,15 @@ public class Train implements Runnable
       readMessage(msg);
     }
   }
-  
+
+  /**
+   * run() method from Runnable interface
+   *
+   * When thread is started, run begins reading messages queue for instruction
+   */
   @Override
   public void run()
   {
-    Message msg;
     while(true)
     {
       readNextMessage();

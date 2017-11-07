@@ -8,24 +8,23 @@ import javax.swing.event.ChangeListener;
 import java.util.ArrayList;
 import java.util.Iterator;
 
-public class TrackMaker
+class TrackMaker
 {
   //@ = Station
   //- = Regular Track
-  //* = Green light
-  //% = Red light
+  //* = Light
   //( = Right switch up
   //) = Left switch up
   //[ = Right switch down
   //] = Left switch down
   //z = Z switch
   //s = S switch
-  private static final char [][] CHAR_MAP =  {{'@', '-', ']', '-', '-', '*', '-', '&'},
-                                              {'@', '-', '(', '-', ']', '-', '-', '&'},
-                                              {'@', '-', '*', '-', '(', ']', '-', '&'},
-                                              {'@', '%', '-', '-', '-', '(', '-', '&'}};
+  private static final char [][] CHAR_MAP =  {{'@', '*', ']', '-', '-', '-', '*', '&'},
+                                              {'@', '*', '(', ']', '-', '-', '*', '&'},
+                                              {'@', '*', '-', '(', '-', ']', '*', '&'},
+                                              {'@', '*', '-', '-', '-', '(', '*', '&'}};
 
-  public static final int FONT_SIZE = 27;
+  private static final int FONT_SIZE = 27;
   public static final double IMAGE_WIDTH = SmartRailsWindow.WINDOW_WIDTH/CHAR_MAP[1].length;
   public static final double IMAGE_HEIGHT = SmartRailsWindow.WINDOW_HEIGHT/CHAR_MAP.length;
   private final Image STRAIGHT_RAIL = res.ResourceLoader.getTrackImage("straightrail.png", IMAGE_WIDTH, IMAGE_HEIGHT);
@@ -38,13 +37,34 @@ public class TrackMaker
   private final Image LEFT_SWITCH_UP = res.ResourceLoader.getTrackImage("leftswitchup.png", IMAGE_WIDTH, IMAGE_HEIGHT);
   private final Image RIGHT_SWITCH_DOWN = res.ResourceLoader.getTrackImage("rightswitchdown.png", IMAGE_WIDTH, IMAGE_HEIGHT);
   private final Image LEFT_SWITCH_DOWN = res.ResourceLoader.getTrackImage("leftswitchdown.png", IMAGE_WIDTH, IMAGE_HEIGHT);
+  private final Image BLUE_TRAIN = res.ResourceLoader.getTrainImage("Train_Blue.png", IMAGE_WIDTH, IMAGE_HEIGHT);
+  private final Image GREEN_TRAIN = res.ResourceLoader.getTrainImage("Train_Green.png", IMAGE_WIDTH, IMAGE_HEIGHT);
+  private final Image PURPLE_TRAIN = res.ResourceLoader.getTrainImage("Train_Purple.png", IMAGE_WIDTH, IMAGE_HEIGHT);
+  private final Image RED_TRAIN = res.ResourceLoader.getTrainImage("Train_Red.png", IMAGE_WIDTH, IMAGE_HEIGHT);
+  private final Image YELLOW_TRAIN = res.ResourceLoader.getTrainImage("Train_Yellow.png", IMAGE_WIDTH, IMAGE_HEIGHT);
   private ArrayList<Line> lines = new ArrayList<>();
   private ArrayList<TrainView> trainViews = new ArrayList<>();
+  private ArrayList<LightTrackView> lightViews = new ArrayList<>();
   
-  public TrackMaker(int num_trains, GraphicsContext gc)
+  TrackMaker(int num_trains, GraphicsContext gc)
   {
     makeTrack(gc);
-    makeTrains(num_trains);
+    makeTrainViews(num_trains);
+  }
+
+  ArrayList<Line> getLines()
+  {
+    return lines;
+  }
+
+  ArrayList<TrainView> getTrainViews()
+  {
+    return trainViews;
+  }
+  
+  ArrayList<LightTrackView> getLightViews()
+  {
+    return lightViews;
   }
   
   private void makeTrack(GraphicsContext gc)
@@ -54,6 +74,7 @@ public class TrackMaker
     StationTrack endPoint = null;
     Track track = null;
     Track prev = null;
+    LightTrackView light;
     SwitchTrack connection;
     int stations = 0;
     double x;
@@ -93,13 +114,12 @@ public class TrackMaker
             break;
   
           case '*':
-            gc.drawImage(GREEN_LIGHT_RAIL, x, y);
             track = new LightTrack(x, y);
-            break;
-  
-          case '%':
-            gc.drawImage(RED_LIGHT_RAIL, x, y);
-            track = new LightTrack(x, y);
+            light = new LightTrackView(GREEN_LIGHT_RAIL, RED_LIGHT_RAIL);
+            ((LightTrack) track).setLightListener(light);
+            light.setLayoutX(x);
+            light.setLayoutY(y);
+            lightViews.add(light);
             break;
   
           case 'z':
@@ -148,58 +168,48 @@ public class TrackMaker
       lines.add(new Line(startPoint, endPoint));
       prev = null;
     }
+    
+    
+    
   }
   
-  private void makeTrains(int num_trains)
+  private void makeTrainViews(int num_trains)
   {
-    ArrayList<Train> trains = new ArrayList<>();
+    double random;
+    Image trainImage;
+    TrainView trainView;
     for(int i = 0; i < num_trains; i++)
     {
-      Train train = new Train(String.valueOf(i+1));
-      trains.add(train);
-      new Thread(train).start();
-      trainViews.add(train.getTrainView());
-    }
-    
-    int i = 0;
-    
-    while(i < trains.size())
-    {
-      for(Line line : lines)
+      random = SmartRailsWindow.rand.nextInt((5-1)+1) + 1;
+  
+      switch((int)random)
       {
-        if(i < trains.size())
-        {
-          line.getStartPoint().addTrain(trains.get(i));
-        }
-        
-        i += 1;
-        
-        if(i < trains.size())
-        {
-          line.getEndPoint().addTrain(trains.get(i));
-        }
-        
-        i += 1;
+        case 1:
+          trainImage = BLUE_TRAIN;
+          break;
+    
+        case 2:
+          trainImage = GREEN_TRAIN;
+          break;
+    
+        case 3:
+          trainImage = PURPLE_TRAIN;
+          break;
+    
+        case 4:
+          trainImage = RED_TRAIN;
+          break;
+    
+        case 5:
+          trainImage = YELLOW_TRAIN;
+          break;
+    
+        default:
+          trainImage = BLUE_TRAIN;
+          break;
       }
+      trainView = new TrainView(trainImage);
+      trainViews.add(trainView);
     }
   }
-  
-  public ArrayList<Line> getLines()
-  {
-    return lines;
-  }
-  
-  public ArrayList<TrainView> getTrainViews()
-  {
-    return trainViews;
-  }
-  
-  public int getLengthofLine()
-  {
-    return CHAR_MAP[0].length;
-  }
-
-  public double getImageWidth() { return IMAGE_WIDTH; }
-
-  public double getImageHeight() { return IMAGE_HEIGHT; }
 }

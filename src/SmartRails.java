@@ -41,7 +41,7 @@ public class SmartRails implements Runnable
     Queue <String> schedule = new ConcurrentLinkedQueue<String>();
     schedule.add("B1");
     trains.get(0).setSchedule(schedule);
-    trains.get(0).receiveMessage(new Message(null, MessageType.START, null, null));
+    trains.get(0).receiveMessage(new Message(null, MessageType.START, null, null, -1));
 //    findTrain(trip);
 //     lines.get(0).getStartPoint().startTrain(trip);
     //lines.get(0).getEndPoint().startTrain(another);

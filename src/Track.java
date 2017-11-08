@@ -225,6 +225,7 @@ public class Track implements Runnable
     if(msg.sender != null)
     {
       newC = new Correspondence(msg);
+      correspondences.add(newC);
     }
     
     return newC;
@@ -244,7 +245,7 @@ public class Track implements Runnable
   synchronized void secureTrack(Message msg)
   {
     Correspondence c = findCorrespondence(msg);
-    if(c.contains(MessageType.SEARCH) && c.contains(MessageType.FOUND))
+    if(c.contains(MessageType.FOUND))
     {
       System.out.println("Track " + x + ", " + y + " is locked");
       locked = true;
@@ -291,16 +292,8 @@ public class Track implements Runnable
       Correspondence c = findCorrespondence(msg);
       if(c != null)
       {
-        if(!c.contains(msg.messageType))
-        {
-          readMessage(msg);
-          c.addMessage(msg);
-        }
-      }
-      
-      else
-      {
         readMessage(msg);
+        c.addMessage(msg);
       }
     }
   }

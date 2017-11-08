@@ -51,7 +51,7 @@ public class Train implements Runnable
     if(!currentTrack.isOccupied())
     {
       currentTrack.setTrain(this);
-      currentTrack.receiveMessage(new Message(name, MessageType.SEARCH, destination, direction));
+      currentTrack.receiveMessage(new Message(name, MessageType.SEARCH, destination, direction, Integer.parseInt(name)));
     }
   }
   
@@ -181,11 +181,11 @@ public class Train implements Runnable
     switch (msg.messageType)
     {
       case FOUND:
-        sendMessage(new Message(name, MessageType.SECURE, msg.sender, direction));
+        sendMessage(new Message(name, MessageType.SECURE, msg.sender, direction, msg.correspondecnceID));
         break;
     
       case SECURED:
-        sendMessage(new Message(name, MessageType.MOVE, msg.sender, direction));
+        sendMessage(new Message(name, MessageType.MOVE, msg.sender, direction, msg.correspondecnceID));
         break;
         
       case START:

@@ -85,11 +85,11 @@ public class StationTrack extends Track
       switch(msg.messageType)
       {
         case SEARCH:
-          sendMessageToNextTrack(new Message(name, MessageType.FOUND, msg.sender, msg.msgDir.getOpposite()));
+          sendMessageToNextTrack(new Message(name, MessageType.FOUND, msg.sender, msg.msgDir.getOpposite(), msg.correspondecnceID));
           break;
           
         case SECURE:
-          sendMessageToNextTrack(new Message(name, MessageType.SECURED, msg.sender, msg.msgDir.getOpposite()));
+          sendMessageToNextTrack(new Message(name, MessageType.SECURED, msg.sender, msg.msgDir.getOpposite(), msg.correspondecnceID));
           break;
           
         case FOUND:

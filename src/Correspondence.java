@@ -2,21 +2,17 @@ import java.util.ArrayList;
 
 public class Correspondence
 {
-  private String correspondent1;
-  private String correspondent2;
+  private int id;
   private ArrayList<MessageType> messages;
   
   public Correspondence(Message msg)
   {
-    correspondent1 = msg.sender;
-    correspondent2 = msg.recipient;
     messages = new ArrayList<>();
   }
   
   public boolean messageBelongsHere(Message msg)
   {
-    return((correspondent1 == msg.sender && correspondent2 == msg.recipient) ||
-        (correspondent1 == msg.sender && correspondent2 == msg.recipient));
+    return (msg.correspondecnceID == id);
   }
   
   public void addMessage(Message msg)
@@ -32,5 +28,16 @@ public class Correspondence
     }
     
     return false;
+  }
+  
+  public void print()
+  {
+    System.out.print("CorrID: " +id+"\n" +
+                     "Messages:"+ "\n");
+    
+    for(MessageType messageType : messages)
+    {
+      System.out.print(messageType+"\n\n");
+    }
   }
 }

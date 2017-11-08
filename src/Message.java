@@ -8,6 +8,7 @@ class Message
   String recipient; //StationTrack of destination
   MessageType messageType;
   Direction msgDir; //Direction to send the message
+  int correspondecnceID;
 
   /**
    * Message constructor:
@@ -16,12 +17,13 @@ class Message
    * @param recipient
    * @param msgDir
    */
-  Message(String sender, MessageType messageType, String recipient, Direction msgDir)
+  Message(String sender, MessageType messageType, String recipient, Direction msgDir, int correspondenceID)
   {
     this.sender = sender;
     this.messageType = messageType;
     this.recipient = recipient;
     this.msgDir = msgDir;
+    this.correspondecnceID = correspondenceID;
   }
 
   /**

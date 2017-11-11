@@ -24,7 +24,7 @@ public class Train implements Runnable
    *
    *            Picks random color to be associated with train instance,
    *            sets name, trainImageName, and trainView
-   *            instanciates messages Queue
+   *            instantiates messages Queue
    */
   Train(String name)
   {
@@ -46,127 +46,13 @@ public class Train implements Runnable
    *
    *                   sends current track first search message
    */
-  void sendOff(String destination)
+  synchronized void findRoute(String destination)
   {
-    if(!currentTrack.isOccupied())
+    while(currentTrack.isOccupied())
     {
-      currentTrack.setTrain(this);
-      currentTrack.receiveMessage(new Message(name, MessageType.SEARCH, destination, direction, Integer.parseInt(name)));
     }
+    currentTrack.receiveMessage(new Message(name, MessageType.SEARCH, destination, direction, Integer.parseInt(name)));
   }
-  
-  /**
-   * Takes the destination name, and goes through the track, securing the route to the destination by flipping track
-   * switches, and turning stop lights red.
-   * @param destination
-   *
-   * will currently set the path to found for tracks with one switch
-   */
-  public void secureRoute(String destination)
-  {
-  
-  }
-//    while (nextTrack.getName() != destination)
-//    {
-//      if(nextTrack.getTrackType() == TrackType.STRAIGHT)
-//      {
-//        pathway.add(currentTrack);
-//        currentTrack.setLocked(true);
-//        currentTrack = nextTrack;
-//        nextTrack = currentTrack.getNextTrack(direction);
-//      }
-//      else if(nextTrack.getTrackType() == TrackType.STATION)
-//      {
-//        nextTrack = destination;
-//      }
-//      else
-//      {
-//        pathway.add(currentTrack);
-//        currentTrack.setLocked(true);
-//        currentTrack = nextTrack;
-//        nextTrack = currentTrack.getNextTrack(direction);
-//      }
-//    }
-//  public void findRoute(String destination)
-//  {
-//    Track nextTrack = currentTrack.getNextTrack(direction);
-//    currentTrack.setMessage(MessageType.FOUND);
-//    boolean pathFound = false;
-//    while (!pathFound)
-//    {
-//      TrackType tT = nextTrack.getTrackType();
-//      if(tT == TrackType.STRAIGHT || tT == TrackType.LIGHT || trackTypeIsSwitch(tT))
-//      {
-//        if(nextTrack.getMessage() != MessageType.SECURED)
-//        {
-//          nextTrack.setMessage(MessageType.FOUND);
-//          currentTrack = nextTrack;
-//          nextTrack = currentTrack.getNextTrack(direction);
-//        }
-//      }
-//      else if(tT == TrackType.STATION)
-//      {
-//        if(((StationTrack)nextTrack).getName().equals(destination))
-//        {
-//          pathFound = true;
-//          nextTrack.setMessage(MessageType.FOUND);
-//        }
-//        else
-//        {
-//          currentTrack = nextTrack;
-//          nextTrack = currentTrack.getNextTrack(opDirection());
-//          TrackType nextTrackType = nextTrack.getTrackType();
-//          boolean toBreak = false;
-//          while(nextTrackType != TrackType.STATION && !toBreak)
-//          {
-//            if(trackTypeIsSwitch(nextTrackType))
-//            {
-//              if(!((SwitchTrack)nextTrack).getSwitchOn()) toBreak = true;
-//            }
-//            nextTrack.setMessage(MessageType.NOTFOUND);
-//            currentTrack = nextTrack;
-//            nextTrack = currentTrack.getNextTrack(opDirection());
-//            nextTrackType = nextTrack.getTrackType();
-//          }
-//          if(trackTypeIsSwitch(nextTrackType))
-//          {
-//            ((SwitchTrack)nextTrack).setSwitchOn(true);
-//            currentTrack = nextTrack;
-//            nextTrack = currentTrack.getNextTrack(direction);
-//          }
-//          else if(nextTrack.getTrackType() == TrackType.STATION)
-//          {
-//            System.out.println("NO PATH FOUND");
-//            //no path can be found
-//          }
-//        }
-//      }
-//    }
-
-    //TODO
-    // SPECIFICATIONS:
-    // This method should be called by StationTrack at the beginning of a trip and by LightTrack after a route is freed by
-    // another train.
-    //
-    // Should move through the tracks starting at "currentTrack," finding until it finds the station corresponding to
-    // "destination."  As it is doing this, it should check to see if there are any red light tracks in its path, as this
-    // would mean the path is already secured by another train.  If the route is free, flip the appropriate track switches,
-    // and change the appropriate lights in order to get the train to its destination.  If the route is secured by another
-    // train, secure the route up to the first red light rail so the train can move to that light track where it should
-    // wait for track to be freed.
-
-  /**
-   * Frees the route behind where a train has already moved.
-   */
-  public void freeRoute()
-  {
-    //TODO
-    //SPECIFICATIONS:
-    //This method should be called every time the train passes a switch.
-    //
-    //Should go through and reset switch and lights corresponding to that switch.
-  }
-
   /**
    * readMessage() method:
    * @param msg: Message to be read
@@ -185,11 +71,17 @@ public class Train implements Runnable
         break;
     
       case SECURED:
+        currentTrack.setTrain(this);
         sendMessage(new Message(name, MessageType.MOVE, msg.sender, direction, msg.correspondecnceID));
         break;
         
+      case ARRIVED:
+        sendMessage(new Message(name, MessageType.FREE, msg.sender, direction.getOpposite(), msg.correspondecnceID));
+        findRoute(schedule.poll());
+        break;
+        
       case START:
-        sendOff(schedule.poll());
+        findRoute(schedule.poll());
         break;
       
       default:

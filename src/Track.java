@@ -53,15 +53,6 @@ public class Track implements Runnable
   }
   
   /**
-   * getRight() method:
-   * @return Track piece to the right
-   */
-  public Track getRight()
-  {
-    return right;
-  }
-  
-  /**
    * setRight() method
    * @param right: Track piece to the right of current track
    * No output
@@ -70,24 +61,6 @@ public class Track implements Runnable
   void setRight(Track right)
   {
     this.right = right;
-  }
-
-  /**
-   * getLeft() method:
-   * @return Track piece to the left
-   */
-  public Track getLeft()
-  {
-    return left;
-  }
-
-  /**
-   * setLocked() method:
-   * @param locked: boolean whether track should be locked
-   */
-  synchronized void setLocked(boolean locked)
-  {
-    this.locked = locked;
   }
   
   /**
@@ -103,7 +76,7 @@ public class Track implements Runnable
    * Sets the train currently on this track.
    * @param train: current train to set on track
    */
-  void setTrain(Train train)
+  synchronized void setTrain(Train train)
   {
     this.train = train;
   }
@@ -202,11 +175,6 @@ public class Track implements Runnable
           sendMessageToNextTrack(msg);
           break;
 
-        case FREE:
-          freeTrack(msg);
-          sendMessageToNextTrack(msg);
-          break;
-
         default:
           sendMessageToNextTrack(msg);
           break;
@@ -222,7 +190,7 @@ public class Track implements Runnable
       if(c.messageBelongsHere(msg)) return c;
     }
     
-    if(msg.sender != null)
+    if(msg.correspondecnceID != -1)
     {
       newC = new Correspondence(msg);
       correspondences.add(newC);
@@ -261,7 +229,9 @@ public class Track implements Runnable
   synchronized void freeTrack(Message msg)
   {
     System.out.println("Track "+x+", "+y+" is freed");
+    clearCorrespondence(msg);
     locked = false;
+    getNextTrack(msg.msgDir).freeTrack(msg);
   }
   
   synchronized void sendMessageToNextTrack(Message msg)
@@ -275,7 +245,7 @@ public class Track implements Runnable
    * No output
    *           sends message to train on track if recipient
    */
-  private synchronized void sendMessageToTrain(Message msg)
+  synchronized void sendMessageToTrain(Message msg)
   {
     if(msg.isRecipient(train)) train.receiveMessage(msg);
   }
@@ -286,13 +256,14 @@ public class Track implements Runnable
   private synchronized void readNextMessage()
   {
     Message msg = messages.poll();
+    Correspondence c;
     messages.remove(msg);
     if(msg != null)
     {
-      Correspondence c = findCorrespondence(msg);
-      if(c != null)
+      readMessage(msg);
+      c = findCorrespondence(msg);
+      if (c != null)
       {
-        readMessage(msg);
         c.addMessage(msg);
       }
     }

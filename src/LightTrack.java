@@ -18,7 +18,7 @@ public class LightTrack extends Track
   }
   
   @Override
-  public synchronized void readMessage(Message msg)
+  synchronized void readMessage(Message msg)
   {
     if(msg.messageType == MessageType.LIGHTON)
     {
@@ -38,7 +38,7 @@ public class LightTrack extends Track
     }
   }
   
-  void setLightOn(boolean lightOn)
+  synchronized void setLightOn(boolean lightOn)
   {
     this.lightOn.setValue(lightOn);
   }

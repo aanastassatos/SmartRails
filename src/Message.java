@@ -53,10 +53,15 @@ class Message
    */
   void print(double x, double y)
   {
-    System.out.println("Location: "+x+", "+y+"\n" +
+    System.out.println("Location: X:"+x+", Y:"+y+"\n" +
                        "Sender: "+sender+"\n" +
                        "Message: "+messageType+"\n"+
                        "Recipient: "+recipient+"\n" +
                        "Direction: "+msgDir+"\n");
+  }
+  
+  Message changeDirection()
+  {
+    return new Message(sender, messageType, recipient, msgDir.getOpposite(), correspondecnceID);
   }
 }

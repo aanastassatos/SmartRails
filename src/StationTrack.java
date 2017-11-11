@@ -21,26 +21,6 @@ public class StationTrack extends Track
     this.name = name;
     trains = new ArrayList<>();
   }
-  
-  /**
-   * startTrain() method:
-   * @param trip: trip containing destination and train name
-   *
-   *            Takes a train name and a destination station name, finds that train within the station (if it is there), then
-   *            sets the train on the track, secures the route, and sends the train on its way.
-   */
-  void startTrain(Trip trip)
-  {
-    Train train = findTrain(trip.train);
-    if(train != null)
-    {
-      train.setDirection(initDirection());
-      train.setCurrentTrack(this);
-      super.setTrain(train);
-      trains.remove(train);
-      train.sendOff(trip.destination);
-    }
-  }
 
   /**
    * addTrain() method:
@@ -92,8 +72,9 @@ public class StationTrack extends Track
           sendMessageToNextTrack(new Message(name, MessageType.SECURED, msg.sender, msg.msgDir.getOpposite(), msg.correspondecnceID));
           break;
           
-        case FOUND:
-          System.out.println("FUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUCK");
+        case MOVE:
+          moveTrain();
+          findTrain(msg.sender).receiveMessage(new Message(name, MessageType.ARRIVED, msg.sender, msg.msgDir.getOpposite(), msg.correspondecnceID));
           break;
           
         default:
@@ -102,19 +83,29 @@ public class StationTrack extends Track
       }
     }
     
-//    else if(!isOccupied())
-//    {
-//      System.out.println("Wrong station! " + name);
-//      Message returnMessage = new Message(name, MessageType.FREE, msg.sender, msg.msgDir.getOpposite(), false);
-//      sendMessageToNextTrack(returnMessage);
-//    }
+    else if(findTrain(msg.recipient) != null)
+    {
+      findTrain(msg.recipient).receiveMessage(msg);
+    }
     
     else
     {
-      super.readMessage(msg);
+      if(getNextTrack(msg.msgDir) == null)
+      {
+        if (msg.messageType == MessageType.SEARCH)
+        {
+          sendMessageToNextTrack(new Message(msg.sender, MessageType.NOTFOUND, msg.recipient, msg.msgDir.getOpposite(), msg.correspondecnceID));
+        }
+        else if (msg.messageType == MessageType.FREE && getNextTrack(msg.msgDir) == null)
+        {
+          freeTrack(msg.changeDirection());
+        }
+      }
+      
+      else super.readMessage(msg);
     }
   }
-
+  
   /**
    * moveTrain() method:
    * No parameters
@@ -124,7 +115,7 @@ public class StationTrack extends Track
    *
    */
   @Override
-  public synchronized void moveTrain()
+  synchronized void moveTrain()
   {
     if(getTrain() != null)
     {
@@ -133,7 +124,8 @@ public class StationTrack extends Track
         trains.add(getTrain());
         System.out.println("Train is now in Station " + name);
         setTrain(null);
-      } else
+      }
+      else
       {
         super.moveTrain();
       }

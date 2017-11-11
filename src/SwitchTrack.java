@@ -55,7 +55,7 @@ public class SwitchTrack extends Track
       if((direction == Direction.RIGHT &&
           (trackType == TrackType.LEFT_DOWN_SWITCH || trackType == TrackType.LEFT_UP_SWITCH)) ||
           (direction == Direction.LEFT &&
-          (trackType == TrackType.RIGHT_DOWN_SWITCH || trackType == TrackType.RIGHT_UP_SWITCH))) return connection;
+          (trackType == TrackType.RIGHT_DOWN_SWITCH || trackType == TrackType.RIGHT_UP_SWITCH))) return connection.getNextTrack(direction);
     }
     
     return super.getNextTrack(direction);
@@ -73,57 +73,53 @@ public class SwitchTrack extends Track
   {
     //System.out.println("Currently at switch");
     msg.print(getX(), getY());
-    switch (msg.messageType)
-    {
-      case SEARCH:
-        search(msg, true);
-        break;
-        
-      case NOTFOUND:
-        search(msg, false);
-        break;
-        
-      case FOUND:
-        sendMessageToNextTrack(msg);
-//      case FREE:
-//        freeTrack(msg);
-//        break;
-
-      default:
-        super.readMessage(msg);
-        break;
-    }
+//    if(locked) super.readMessage(msg);
+//    else
+//    {
+      switch (msg.messageType)
+      {
+        case SEARCH:
+          switchDirection(connection.findCorrespondence(msg).getSwitchValue());
+          search(new Message(msg.sender, MessageType.SEARCH, msg.recipient, msg.msgDir, msg.correspondecnceID), switchOn);
+          break;
+    
+        case NOTFOUND:
+          switchDirection(true);
+          search(new Message(msg.sender, MessageType.SEARCH, msg.recipient, msg.msgDir.getOpposite(), msg.correspondecnceID), switchOn);
+          break;
+    
+        case FOUND:
+          saveSwitchValues(msg);
+          sendMessageToNextTrack(msg);
+          break;
+          
+        case FREE:
+          connection.receiveMessage(msg);
+          super.getNextTrack(msg.msgDir).receiveMessage(msg);
+          break;
+    
+        default:
+          super.readMessage(msg);
+          break;
+      }
   }
   
   synchronized void search(Message msg, boolean switchOn)
   {
-    switchDirection(switchOn);
-    sendMessageToNextTrack(msg);
+    if(!switchOn || (switchOn && msg.msgDir == direction.getOpposite()))
+    {
+      findCorrespondence(msg).setSwitchValue(switchOn);
+      if(switchOn) turnSwitchOn();
+      else if(!switchOn && msg.msgDir == direction.getOpposite()) turnSwitchOff();
+      sendMessageToNextTrack(msg);
+    }
     
   }
 
-  /**
-   * sendMessageToNextTrack() method:
-   * @param msg: Message to be sent
-   *
-   *           If searching in forward direction, splits
-   *           message and sends on both sides of switch track
-   *           If searching in backward direction, only sends
-   *           message in direction according to switchOn field
-   */
-  @Override
-  synchronized void sendMessageToNextTrack(Message msg)
+  synchronized void saveSwitchValues(Message msg)
   {
-    connection.findCorrespondence(msg).print();
-    super.getNextTrack(msg.msgDir).receiveMessage(msg);
-    
-    if(connection.direction == msg.msgDir && (msg.messageType == MessageType.SEARCH ||
-        (msg.messageType == MessageType.FOUND && connection.findCorrespondence(msg).contains(MessageType.SEARCH))||
-        (msg.messageType == MessageType.SECURE && connection.findCorrespondence(msg).contains(MessageType.FOUND)) ||
-        (msg.messageType == MessageType.SECURED && connection.findCorrespondence(msg).contains(MessageType.SECURE))))
-    {
-      connection.receiveMessage(msg);
-    }
+    Correspondence c = findCorrespondence(msg);
+    if (connection.findCorrespondence(msg).getSwitchValue()) c.setSwitchValue(true);
   }
   
   @Override
@@ -132,14 +128,29 @@ public class SwitchTrack extends Track
     Correspondence c = findCorrespondence(msg);
     if(c.contains(MessageType.FOUND))
     {
-      System.out.println("Track " + getX() + ", " + getY() + " is locked");
-      locked = true;
-      c = connection.findCorrespondence(msg);
-      if(c.contains(MessageType.SEARCH) && c.contains(MessageType.FOUND))
+      if(!locked)
       {
-        switchDirection(true);
+        System.out.println("Track " + getX() + ", " + getY() + " is locked");
+        locked = true;
+  
+        if (findCorrespondence(msg).getSwitchValue()) turnSwitchOn();
+        else turnSwitchOff();
+      }
+      
+      else
+      {
+        receiveMessage(msg);
       }
     }
+  }
+  
+  @Override
+  synchronized void freeTrack(Message msg)
+  {
+    turnSwitchOff();
+    clearCorrespondence(msg);
+    locked = false;
+    super.getNextTrack(msg.msgDir).freeTrack(msg);
   }
   
   /**
@@ -156,6 +167,18 @@ public class SwitchTrack extends Track
   /**
    * Changes the direction of the switch.
    */
+  synchronized void turnSwitchOn()
+  {
+    switchDirection(true);
+    connection.switchDirection(true);
+  }
+  
+  synchronized void turnSwitchOff()
+  {
+    switchDirection(false);
+    connection.switchDirection(false);
+  }
+  
   synchronized void switchDirection(boolean switchOn)
   {
     changeLight(switchOn);

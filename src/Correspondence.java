@@ -4,10 +4,23 @@ public class Correspondence
 {
   private int id;
   private ArrayList<MessageType> messages;
+  private boolean switchValue;
   
   public Correspondence(Message msg)
   {
     messages = new ArrayList<>();
+    id = msg.correspondecnceID;
+    switchValue = false;
+  }
+  
+  public void setSwitchValue(boolean switchValue)
+  {
+    this.switchValue = switchValue;
+  }
+  
+  public boolean getSwitchValue()
+  {
+    return switchValue;
   }
   
   public boolean messageBelongsHere(Message msg)

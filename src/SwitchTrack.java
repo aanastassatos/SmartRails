@@ -92,11 +92,6 @@ public class SwitchTrack extends Track
           saveSwitchValues(msg);
           sendMessageToNextTrack(msg);
           break;
-          
-        case FREE:
-          connection.receiveMessage(msg);
-          super.getNextTrack(msg.msgDir).receiveMessage(msg);
-          break;
     
         default:
           super.readMessage(msg);
@@ -147,10 +142,29 @@ public class SwitchTrack extends Track
   @Override
   synchronized void freeTrack(Message msg)
   {
-    turnSwitchOff();
-    clearCorrespondence(msg);
+    if (isSwitchOn()) turnSwitchOff();
+  
+    if (containsCorrespondence(msg))
+    {
+      clearCorrespondence(msg);
+    }
+  
+    if (connection.containsCorrespondence(msg))
+    {
+      connection.receiveMessage(msg);
+    }
+  
+    if (super.getNextTrack(msg.msgDir).containsCorrespondence(msg))
+    {
+      super.getNextTrack(msg.msgDir).receiveMessage(msg);
+    }
+  
+    if (super.getNextTrack(msg.msgDir.getOpposite()).containsCorrespondence(msg))
+    {
+      super.getNextTrack(msg.msgDir.getOpposite()).receiveMessage(msg.changeDirection());
+    }
+  
     locked = false;
-    super.getNextTrack(msg.msgDir).freeTrack(msg);
   }
   
   /**
@@ -205,7 +219,7 @@ public class SwitchTrack extends Track
    * Returns whether or not the switch is on.
    * @return boolean true if switch is on
    */
-  boolean isSwitchOn()
+  synchronized boolean isSwitchOn()
   {
     return switchOn;
   }

@@ -29,7 +29,7 @@ public class StationTrack extends Track
    *
    *             Adds a train to train array list at station
    */
-  void addTrain(Train train)
+  synchronized void addTrain(Train train)
   {
     trains.add(train);
     System.out.println(train.getName()+" was added to "+getName());
@@ -56,7 +56,7 @@ public class StationTrack extends Track
    *              Passes message to next track
    */
   @Override
-  public synchronized void readMessage(Message msg)
+  synchronized void readMessage(Message msg)
   {
     if(msg.isRecipient(this))
     {
@@ -137,7 +137,7 @@ public class StationTrack extends Track
    * @param trainName: train name of train to be found at station
    * @return train if train is at station
    */
-  private Train findTrain(String trainName)
+  private synchronized Train findTrain(String trainName)
   {
     for(Train train : trains)
     {
@@ -152,9 +152,18 @@ public class StationTrack extends Track
    * No parameters
    * @return Direction train must travel
    */
-  private Direction initDirection()
+  private synchronized Direction initDirection()
   {
     if(getNextTrack(Direction.RIGHT) == null) return Direction.LEFT;
     else return Direction.RIGHT;
   }
+  
+//  @Override
+//  synchronized void freeTrack(Message msg)
+//  {
+//    if(getNextTrack(msg.msgDir) != null)
+//    {
+//      super.freeTrack(msg);
+//    }
+//  }
 }

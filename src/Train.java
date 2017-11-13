@@ -120,7 +120,7 @@ public class Train implements Runnable
    *
    *                 Sets instance direction to parameter direction
    */
-  void setDirection(Direction direction)
+  synchronized void setDirection(Direction direction)
   {
     this.direction = direction;
   }
@@ -157,7 +157,7 @@ public class Train implements Runnable
    *                    Used to set current track train is on
    *                    and move train to current track
    */
-  void setCurrentTrack(Track currentTrack)
+  synchronized void setCurrentTrack(Track currentTrack)
   {
     this.currentTrack = currentTrack;
     relocate(currentTrack.getX(), currentTrack.getY());
@@ -168,7 +168,7 @@ public class Train implements Runnable
    * No parameters
    * @return String of train name
    */
-  String getName()
+  synchronized String getName()
   {
     return name;
   }
@@ -192,7 +192,7 @@ public class Train implements Runnable
    *                    show train.  If not, sets trainView to visible
    *                    so train can be seen on interface at current location
    */
-  private void relocate(double x, double y)
+  private synchronized void relocate(double x, double y)
   {
     if(currentTrack instanceof StationTrack)
     {

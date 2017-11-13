@@ -174,6 +174,10 @@ public class Track implements Runnable
           secureTrack(msg);
           sendMessageToNextTrack(msg);
           break;
+          
+        case FREE:
+          freeTrack(msg);
+          break;
 
         default:
           sendMessageToNextTrack(msg);
@@ -181,7 +185,17 @@ public class Track implements Runnable
       }
     }
   }
-
+  
+  synchronized boolean containsCorrespondence(Message msg)
+  {
+    for(Correspondence c : correspondences)
+    {
+      if(c.messageBelongsHere(msg)) return true;
+    }
+    
+    return false;
+  }
+  
   synchronized Correspondence findCorrespondence(Message msg)
   {
     Correspondence newC = null;
@@ -228,10 +242,17 @@ public class Track implements Runnable
    */
   synchronized void freeTrack(Message msg)
   {
-    System.out.println("Track "+x+", "+y+" is freed");
-    clearCorrespondence(msg);
+    if(containsCorrespondence(msg))
+    {
+      System.out.println("Track " + x + ", " + y + " is freed");
+      clearCorrespondence(msg);
+    }
     locked = false;
-    getNextTrack(msg.msgDir).freeTrack(msg);
+    
+    if(getNextTrack(msg.msgDir).containsCorrespondence(msg))
+    {
+      getNextTrack(msg.msgDir).receiveMessage(msg);
+    }
   }
   
   synchronized void sendMessageToNextTrack(Message msg)

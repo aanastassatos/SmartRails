@@ -13,6 +13,7 @@ public class SmartRails implements Runnable
 {
   private ArrayList<Train> trains;
   private boolean running;
+  private String destination;
 
   /**
    * SmartRails constructor:
@@ -26,6 +27,11 @@ public class SmartRails implements Runnable
     this.trains = trains;
   }
 
+  public void setDestination(String destination)
+  {
+    this.destination = destination;
+  }
+
   /**
    * run() method:  From runnable interface
    * No parameters/No output
@@ -35,13 +41,13 @@ public class SmartRails implements Runnable
   @Override
   public void run()
   {
-    Trip trip = new Trip("B0", "1");
-    Trip otherTrip = new Trip("B2", "3");
-    Trip another = new Trip("A0", "2");
+    //Trip trip = new Trip("B0", "1");
+    //Trip otherTrip = new Trip("B2", "3");
+    //Trip another = new Trip("A0", "2");
     Queue<String> schedule1 = new ConcurrentLinkedQueue<String>();
-    Queue<String> schedule2 = new ConcurrentLinkedQueue<String>();
-    schedule1.add("B3");
-    schedule1.add("A1");
+    //Queue<String> schedule2 = new ConcurrentLinkedQueue<String>();
+    if(destination != null) schedule1.add(destination);
+    //schedule1.add("A1");
     trains.get(0).setSchedule(schedule1);
     trains.get(0).receiveMessage(new Message(null, MessageType.START, null, null, -1));
     running = true;

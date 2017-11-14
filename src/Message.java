@@ -49,7 +49,7 @@ class Message
   /**
    * print() method:
    * @param x: x coordinate
-   * @param y
+   * @param y: y coordinate
    */
   void print(double x, double y)
   {

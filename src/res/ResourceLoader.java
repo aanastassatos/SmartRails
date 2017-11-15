@@ -36,8 +36,8 @@ public class ResourceLoader
     return new MediaPlayer(sound);
   }
 
-  public static Image getTitle(int width, int height)
+  public static Image getTitle(String filename, int width, int height)
   {
-    return getImage("SmartRailsTitle.png", width, height);
+    return getImage(filename + ".png", width, height);
   }
 }

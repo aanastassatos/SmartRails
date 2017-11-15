@@ -19,6 +19,8 @@ public class SmartRails implements Runnable
 {
   private ArrayList<Train> trains;
   private boolean running;
+  private String destination;
+
 
   /**
    * SmartRails constructor:
@@ -32,6 +34,11 @@ public class SmartRails implements Runnable
     this.trains = trains;
   }
 
+  public void setDestination(String destination)
+  {
+    this.destination = destination;
+  }
+
   /**
    * run() method:  From runnable interface
    * No parameters/No output
@@ -41,7 +48,7 @@ public class SmartRails implements Runnable
   @Override
   public void run()
   {
-    LinkedList<String> schedule1 = new LinkedList<>();
+    /*LinkedList<String> schedule1 = new LinkedList<>();
     schedule1.add("B1");
     schedule1.add("A1");
     schedule1.add("B0");
@@ -53,6 +60,7 @@ public class SmartRails implements Runnable
     schedule1.add("B2");
     schedule1.add("A3");
     trains.get(0).setSchedule(schedule1);
+    */
     trains.get(0).receiveMessage(new Message(null, MessageType.START, null, null, -1));
     running = true;
   }

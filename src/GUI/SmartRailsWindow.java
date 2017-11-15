@@ -29,12 +29,15 @@ public class SmartRailsWindow extends Application
   static final int WINDOW_WIDTH = 1400;
   static final int WINDOW_HEIGHT = 700;
   static Random rand = new Random();
+
   private static final String font = "Monospaced";
   private static final int fontsize = 20;
   private static ArrayList<Train> trains = new ArrayList<>();
   private ChoiceBox<String> destination = new ChoiceBox<>();
+  private TrackMaker track;
 
-  private static int NUM_TRAINS = 1;
+  private static int NUM_TRAINS;
+  private Button sendTrain;
 
   /**
    * main method of project SmartRails
@@ -42,7 +45,6 @@ public class SmartRailsWindow extends Application
    */
   public static void main(String[] args)
   {
-    //System.out.println(Font.getFamilies());
     launch(args);
   }
 
@@ -56,32 +58,8 @@ public class SmartRailsWindow extends Application
   {
     MediaPlayer mediaPlayer = res.ResourceLoader.getMediaPlayer();
     mediaPlayer.play();
-    Group root = new Group();
     Canvas canvas = new Canvas(WINDOW_WIDTH, WINDOW_HEIGHT);
-    TrackMaker track = new TrackMaker(NUM_TRAINS, canvas.getGraphicsContext2D());
-    //makeTrains(track);
-
-//    Button button = new Button("I Am A Button");
-//    button.setOnAction(e->
-//    {
-//      button.setVisible(false);
-//      new Thread(smartRails).start();
-//    });
-    
-    root.getChildren().addAll(canvas);
-    
-    for(LightTrackView lightTrackView : track.getLightViews())
-    {
-      root.getChildren().add(lightTrackView);
-    }
-    
-    for(TrainView trainView  : track.getTrainViews())
-    {
-      root.getChildren().add(trainView);
-    }
-
-    Scene scene = new Scene(root);
-    openingScene(stage, scene, track);
+    openingScene(stage, canvas);
     stage.setOnCloseRequest(e -> System.exit(0));
     stage.show();
   }
@@ -89,12 +67,12 @@ public class SmartRailsWindow extends Application
   /**
    * private method openingScene
    * @param stage: stage of SmartRails
-   * @param scene: Main scene with trains and stations
+   * @param canvas: canvas that will be used for main scene
    *
    *             Creates opening scene with title,
    *             and option to choose train and destination
    */
-  private void openingScene(Stage stage, Scene scene, TrackMaker track)
+  private void openingScene(Stage stage, Canvas canvas)
   {
     VBox vbox = new VBox();
     int vertInset = 100;
@@ -118,8 +96,9 @@ public class SmartRailsWindow extends Application
     formatButton(go, "Set The Schedule", bkgd);
     go.setOnAction(e -> {
       NUM_TRAINS = numOfTrains.getValue();
+      track = new TrackMaker(NUM_TRAINS, canvas.getGraphicsContext2D());
       makeTrains(track);
-      scheduleScene(stage, scene, bkgd, track);
+      scheduleScene(stage, bkgd, canvas);
     });
 
     vbox.setBackground(bkgd);
@@ -131,34 +110,59 @@ public class SmartRailsWindow extends Application
     stage.setScene(opener);
   }
 
-  private void scheduleScene(Stage stage, Scene scene, Background bkgd, TrackMaker track)
+  private void scheduleScene(Stage stage, Background bkgd, Canvas canvas)
   {
-    int vertInset = 100;
-    int horizInset = 70;
-    int spacing = 20;
+    int vertInset = 70;
+    int horizInset = 30;
+    int spacing = 15;
 
     VBox vBox = new VBox();
     vBox.setPadding(new Insets(vertInset, horizInset, vertInset, horizInset));
     vBox.setSpacing(spacing);
     vBox.setAlignment(Pos.CENTER);
     vBox.setBackground(bkgd);
+
+    Label instruction = new Label("Select starting side, then select " +
+            "starting station and 3 destinations to travel to");
+    instruction.setFont(Font.font(font, fontsize));
+    instruction.setTextFill(Color.YELLOW);
+    vBox.getChildren().add(instruction);
+
     for(int i = 0; i < NUM_TRAINS; i++)
     {
       vBox.getChildren().add(trainSelection(i+1, bkgd, track));
     }
 
-    Button sendTrain = new Button();
+    sendTrain = new Button();
+    sendTrain.setDisable(true);
     formatButton(sendTrain, "Release the Trains.", bkgd);
-    sendTrain.setOnAction(e -> {
-      stage.setScene(scene);
-      SmartRails smartRails = new SmartRails(trains);
-      smartRails.setDestination(destination.getValue());
-      new Thread(smartRails).start();
-    });
+    sendTrain.setOnAction(e -> trainScene(stage, canvas));
 
     vBox.getChildren().add(sendTrain);
     Scene schedScene = new Scene(vBox);
     stage.setScene(schedScene);
+  }
+
+  private void trainScene(Stage stage, Canvas canvas)
+  {
+    Group root = new Group();
+    root.getChildren().addAll(canvas);
+
+    for(LightTrackView lightTrackView : track.getLightViews())
+    {
+      root.getChildren().add(lightTrackView);
+    }
+
+    for(TrainView trainView  : track.getTrainViews())
+    {
+      root.getChildren().add(trainView);
+    }
+
+    Scene scene = new Scene(root);
+    stage.setScene(scene);
+    SmartRails smartRails = new SmartRails(trains);
+    smartRails.setDestination(destination.getValue());
+    new Thread(smartRails).start();
   }
 
   private void setTrainAtStation(ChoiceBox<String> choice, Train train, TrackMaker track)
@@ -221,9 +225,10 @@ public class SmartRailsWindow extends Application
     });
 
     Button setSchedule = new Button();
-    formatButton(setSchedule, "Set the Schedule.", bkgd);
+    formatButton(setSchedule, "Schedule.", bkgd);
     LinkedList<String> schedule = new LinkedList<>();
     setSchedule.setOnAction(e -> {
+      sendTrain.setDisable(false);
       setTrainAtStation(destinations.get(0), trains.get(trainNumber-1), track);
       for(int i = 1; i < destinations.size(); i++)
       {

@@ -3,9 +3,6 @@ package Train_and_Track;
 import SmartRails.Direction;
 import Train_and_Track.Message.*;
 
-import java.util.UUID;
-
-
 /**
  * SwitchTrack class extends Track
  * Is used for all switch tracks
@@ -17,7 +14,7 @@ public class SwitchTrack extends Track
 {
   private boolean switchOn; //If on, switch track will move train to switched line
   private SwitchTrack connection; //SwitchTrack connected to current switch track
-  private Direction direction;
+  private Direction direction;  //The direction that the switch goes.
   
   /**
    * SwitchTrack() Constructor:
@@ -65,7 +62,7 @@ public class SwitchTrack extends Track
    *                If switch is on, returns track on next line
    */
   @Override
-  synchronized Track getNextTrack(Direction direction)
+  Track getNextTrack(Direction direction)
   {
     TrackType trackType = getTrackType();
     if(switchOn)
@@ -90,6 +87,7 @@ public class SwitchTrack extends Track
   synchronized void readMessage(Message msg)
   {
     msg.print(getX(), getY());
+    
     if((msg.msgDir == direction.getOpposite() && !switchOn) || (msg.msgDir == direction && msg.messageType != MessageType.NOTFOUND)) super.readMessage(msg);
     
     else
@@ -125,6 +123,10 @@ public class SwitchTrack extends Track
     }
   }
   
+  /**
+   * Secures track
+   * @param msg: message to secure current track
+   */
   @Override
   synchronized void secureTrack(Message msg)
   {
@@ -132,10 +134,14 @@ public class SwitchTrack extends Track
     if(c.contains(MessageType.FOUND))
     {
       System.out.println("Track " + getX() + ", " + getY() + " is locked");
-      setLocked(true);
+      setSecure(true);
     }
   }
   
+  /**
+   * Frees the track.
+   * @param msg
+   */
   @Override
   synchronized void freeTrack(Message msg)
   {
@@ -156,31 +162,43 @@ public class SwitchTrack extends Track
       turnSwitchOff();
       
       setLocked(false);
+      setSecure(false);
     }
   }
   
   /**
-   * Changes the direction of the switch.
+   * Changes the direction of the switch to on.
    */
-  synchronized void turnSwitchOn()
+  private void turnSwitchOn()
   {
     switchDirection(true);
     connection.switchDirection(true);
   }
   
-  synchronized void turnSwitchOff()
+  /**
+   * Changes the direction of the switch to off.
+   */
+  private void turnSwitchOff()
   {
     switchDirection(false);
     connection.switchDirection(false);
   }
   
-  synchronized void switchDirection(boolean switchOn)
+  /**
+   * Changes the direction of the switch to the given boolean
+   * @param switchOn
+   */
+  void switchDirection(boolean switchOn)
   {
     changeLight(switchOn);
     this.switchOn = switchOn;
   }
   
-  private synchronized void changeLight(boolean lightOn)
+  /**
+   * Changes the lights in the appropriate direction to the given boolean
+   * @param lightOn
+   */
+  private void changeLight(boolean lightOn)
   {
     Track track = super.getNextTrack(direction.getOpposite());
     while(!(track instanceof StationTrack))

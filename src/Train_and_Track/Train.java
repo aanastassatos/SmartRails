@@ -64,6 +64,16 @@ public class Train implements Runnable
   }
   
   /**
+   * getName() method:
+   * No parameters
+   * @return String of train name
+   */
+  public String getName()
+  {
+    return name;
+  }
+  
+  /**
    * run() method from Runnable interface
    *
    * When thread is started, run begins reading messages queue for instruction and sending messages
@@ -197,6 +207,7 @@ public class Train implements Runnable
     {
       startStation = ((StationTrack) currentTrack).getName();
       addToOutGoing(new Message(name, MessageType.SEARCH, destination, direction, Integer.parseInt(name)));
+      this.destination = destination;
     }
   }
 
@@ -221,15 +232,19 @@ public class Train implements Runnable
   {
     return direction;
   }
-
+  
   /**
-   * getName() method:
-   * No parameters
-   * @return String of train name
+   * setCurrentTrack() method:
+   * @param currentTrack: track piece
+   * No output
+   *
+   *                    Used to set current track train is on
+   *                    and move train to current track
    */
-  String getName()
+  void setCurrentTrack(Track currentTrack)
   {
-    return name;
+    this.currentTrack = currentTrack;
+    relocate(currentTrack.getX(), currentTrack.getY());
   }
   
   /**
@@ -253,19 +268,5 @@ public class Train implements Runnable
     }
     
     trainView.move(x, y);
-  }
-  
-  /**
-   * setCurrentTrack() method:
-   * @param currentTrack: track piece
-   * No output
-   *
-   *                    Used to set current track train is on
-   *                    and move train to current track
-   */
-  void setCurrentTrack(Track currentTrack)
-  {
-    this.currentTrack = currentTrack;
-    relocate(currentTrack.getX(), currentTrack.getY());
   }
 }

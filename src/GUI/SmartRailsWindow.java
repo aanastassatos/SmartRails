@@ -112,8 +112,13 @@ public class SmartRailsWindow extends Application
     Scene opener = new Scene(vbox);
     stage.setScene(opener);
   }
-
-  //TODO: Write comments for this
+  
+  /**
+   * Makes the schedule scene.
+   * @param stage
+   * @param bkgd
+   * @param canvas
+   */
   private void scheduleScene(Stage stage, Background bkgd, Canvas canvas)
   {
     int vertInset = 70;
@@ -146,8 +151,12 @@ public class SmartRailsWindow extends Application
     Scene schedScene = new Scene(vBox);
     stage.setScene(schedScene);
   }
-
-  //TODO: Write comments for this
+  
+  /**
+   * Makes the train scene.
+   * @param stage
+   * @param canvas
+   */
   private void trainScene(Stage stage, Canvas canvas)
   {
     Group root = new Group();
@@ -169,8 +178,13 @@ public class SmartRailsWindow extends Application
 //    smartRails.setDestination(destination.getValue());
     new Thread(smartRails).start();
   }
-
-  //TODO: Write comments for this
+  
+  /**
+   * Puts the train at the specified station.
+   * @param choice
+   * @param train
+   * @param track
+   */
   private void setTrainAtStation(ChoiceBox<String> choice, Train train, TrackMaker track)
   {
     char sideCharacter = choice.getValue().charAt(0);
@@ -194,8 +208,14 @@ public class SmartRailsWindow extends Application
     b.setTextFill(Color.ORANGERED);
     b.setBackground(background);
   }
-
-  //TODO: Write comments for this
+  
+  /**
+   * Makes the train selection HBox
+   * @param trainNumber
+   * @param bkgd
+   * @param track
+   * @return
+   */
   private HBox trainSelection(int trainNumber, Background bkgd, TrackMaker track)
   {
     int spacing = 20;
@@ -275,8 +295,11 @@ public class SmartRailsWindow extends Application
     hBox.getChildren().add(setSchedule);
     return hBox;
   }
-
-  //TODO: Write comments for this
+  
+  /**
+   * Makes the trains and sets their TrainView
+   * @param track
+   */
   private void makeTrains(TrackMaker track)
   {
     Train train;

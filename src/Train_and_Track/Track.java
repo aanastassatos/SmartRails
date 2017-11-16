@@ -312,32 +312,9 @@ public class Track implements Runnable
       try
       {
         Message msg = incomingMessages.take();
-        
-        if((!locked && msg.correspondenceID != -1) || (locked && lockedBy < msg.correspondenceID))
-        {
-          locked = true;
-          lockedBy = msg.correspondenceID;
-        }
-  
-        if(msg.correspondenceID == -1 || (locked && lockedBy == msg.correspondenceID) || !locked ||
-            msg.messageType == MessageType.FOUND || msg.messageType == MessageType.NOTFOUND || msg.messageType == MessageType.FREED)
-        {
-          if (msg.correspondenceID != -1)
-          {
-            findCorrespondence(msg).addMessage(msg);
-          }
-          readMessage(msg);
-        }
-
-        else
-        {
-          addToOutGoing(new Message(msg.getRecipient(), msg.messageType, msg.sender, msg.msgDir.getOpposite(), msg.correspondenceID));
-        }
-        
+        readMessage(msg);
         msg = outgoingMessages.take();
         sendMessage(msg);
-        
-//        Thread.sleep(0, 1);
       } catch (InterruptedException e)
       {
         e.printStackTrace();

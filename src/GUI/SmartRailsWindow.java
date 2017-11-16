@@ -255,6 +255,7 @@ public class SmartRailsWindow extends Application
         train = new Train(String.valueOf(i));
         train.setTrainView(trainView);
         trains.add(train);
+        i++;
       }
     }
   }

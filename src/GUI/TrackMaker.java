@@ -5,6 +5,8 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
 import javafx.scene.text.Font;
 
+import java.io.BufferedReader;
+import java.io.IOException;
 import java.util.ArrayList;
 
 public class TrackMaker
@@ -18,11 +20,13 @@ public class TrackMaker
   //] = Left switch down
   //z = Z switch
   //s = S switch
-  private static final char [][] CHAR_MAP =  {{'@', '*', ']', '-', '-', '[', '*', '&'},
-                                              {'@', '*', '(', ']', '[', ')', '*', '&'},
-                                              {'@', '*', '[', '(', ')', ']', '*', '&'},
-                                              {'@', '*', ')', '*', '*', '(', '*', '&'}};
-
+//  private static final char [][] CHAR_MAP =  {{'@', '*', ']', '-', '-', '[', '*', '&'},
+//                                              {'@', '*', '(', ']', '[', ')', '*', '&'},
+//                                              {'@', '*', '[', '(', ')', ']', '*', '&'},
+//                                              {'@', '*', ')', '*', '*', '(', '*', '&'}};
+  
+  private static final BufferedReader trackMapReader = new BufferedReader(res.ResourceLoader.getTrackMap());
+  private static final char [][] CHAR_MAP = makeCharMap();
   private static final int FONT_SIZE = 27;
   public static final double IMAGE_WIDTH = SmartRailsWindow.WINDOW_WIDTH/CHAR_MAP[1].length;
   public static final double IMAGE_HEIGHT = SmartRailsWindow.WINDOW_HEIGHT/CHAR_MAP.length;
@@ -152,6 +156,7 @@ public class TrackMaker
             break;
   
           default:
+            System.exit(3);
             break;
         }
         
@@ -206,6 +211,56 @@ public class TrackMaker
       }
       trainView = new TrainView(trainImage);
       trainViews.add(trainView);
+    }
+  }
+  
+  private static char [][] makeCharMap()
+  {
+    ArrayList<char[]> lines = new ArrayList<>();
+    String line;
+    try
+    {
+      while ((line = trackMapReader.readLine()) != null)
+      {
+       lines.add(line.toCharArray());
+      }
+    } catch (IOException e)
+    {
+      e.printStackTrace();
+    }
+    
+    char[][] charMap = new char[lines.size()][lines.get(0).length];
+    
+    for(int i = 0; i < lines.size(); i++)
+    {
+      charMap[i] = lines.get(i);
+    }
+    
+    checkCharMap(charMap);
+    
+    return charMap;
+  }
+  
+  private static void checkCharMap(char[][] charMap)
+  {
+    char c;
+    for (int i = 0; i < charMap.length; i++)
+    {
+      for (int j = 0; j < charMap[i].length; j++)
+      {
+        c = charMap[i][j];
+        if(c == ')' || c == '(')
+        {
+          if(i == 0) System.exit(1);
+          else if(charMap[i-1][j] != ']' && charMap[i-1][j] != '[') System.exit(1);
+        }
+  
+        if(c == '[' || c == ']')
+        {
+          if(i == charMap.length) System.exit(2);
+          else if(charMap[i+1][j] != '(' && charMap[i+1][j] != ')') System.exit(2);
+        }
+      }
     }
   }
 }

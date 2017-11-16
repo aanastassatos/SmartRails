@@ -11,7 +11,7 @@ public class Correspondence
   public Correspondence(Message msg)
   {
     messages = new ArrayList<>();
-    id = msg.correspondecnceID;
+    id = msg.correspondenceID;
     switchValue = false;
   }
   
@@ -27,7 +27,7 @@ public class Correspondence
   
   public boolean messageBelongsHere(Message msg)
   {
-    return (msg.correspondecnceID == id);
+    return (msg.correspondenceID == id);
   }
   
   public void addMessage(Message msg)

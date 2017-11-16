@@ -11,6 +11,8 @@ import javafx.scene.canvas.Canvas;
 import javafx.scene.control.Button;
 import javafx.stage.Stage;
 
+import java.io.BufferedReader;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Random;
 
@@ -20,8 +22,7 @@ public class SmartRailsWindow extends Application
   static final int WINDOW_HEIGHT = 700;
   static Random rand = new Random();
   private static ArrayList<Train> trains = new ArrayList<>();
-
-  private static final int NUM_TRAINS = 1;
+  private static final int NUM_TRAINS = 2;
 
   /**
    * main method of project SmartRails

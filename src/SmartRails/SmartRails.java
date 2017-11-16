@@ -42,18 +42,22 @@ public class SmartRails implements Runnable
   public void run()
   {
     LinkedList<String> schedule1 = new LinkedList<>();
-    schedule1.add("B1");
-    schedule1.add("A1");
+    LinkedList<String> schedule2 = new LinkedList<>();
+//    schedule1.add("B1");
+//    schedule1.add("A1");
+//    schedule1.add("B0");
+//    schedule1.add("A2");
+//    schedule1.add("B3");
+//    schedule1.add("A0");
+//    schedule1.add("B0");
+//    schedule1.add("A1");
+//    schedule1.add("B2");
+//    schedule1.add("A3");
     schedule1.add("B0");
-    schedule1.add("A2");
-    schedule1.add("B3");
-    schedule1.add("A0");
-    schedule1.add("B0");
-    schedule1.add("A1");
-    schedule1.add("B2");
-    schedule1.add("A3");
+    schedule2.add("A0");
     trains.get(0).setSchedule(schedule1);
+    trains.get(1).setSchedule(schedule2);
     trains.get(0).receiveMessage(new Message(null, MessageType.START, null, null, -1));
-    running = true;
+    //trains.get(1).receiveMessage(new Message(null, MessageType.START, null, null, -1));
   }
 }

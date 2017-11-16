@@ -54,7 +54,8 @@ public class Train implements Runnable
    *
    *                   sends current track first search message
    */
-  synchronized void findRoute(String destination)
+  //synchronized
+  void findRoute(String destination)
   {
     if(destination != null)
     {
@@ -73,31 +74,40 @@ public class Train implements Runnable
   private synchronized void readMessage(Message msg)
   {
     msg.print(-1,-1);
-    switch (msg.messageType)
+    
+    if(msg.messageType == MessageType.SEARCH || msg.messageType == MessageType.SECURE || msg.messageType == MessageType.MOVE)
     {
-      case FOUND:
-        sendMessage(new Message(name, MessageType.SECURE, msg.sender, direction, msg.correspondecnceID));
-        break;
-
-      case SECURED:
-        currentTrack.setTrain(this);
-        sendMessage(new Message(name, MessageType.MOVE, msg.sender, direction, msg.correspondecnceID));
-        break;
-        
-      case ARRIVED:
-        sendMessage(new Message(name, MessageType.FREE, startStation, direction, msg.correspondecnceID));
-        break;
-        
-      case FREED:
-        findRoute(schedule.poll());
-        break;
-        
-      case START:
-        findRoute(schedule.poll());
-        break;
-      
-      default:
-        break;
+      sendMessage(new Message(name, msg.messageType, msg.sender, direction, msg.correspondenceID));
+    }
+    
+    else
+    {
+      switch (msg.messageType)
+      {
+        case FOUND:
+          sendMessage(new Message(name, MessageType.SECURE, msg.sender, direction, msg.correspondenceID));
+          break;
+    
+        case SECURED:
+          currentTrack.setTrain(this);
+          sendMessage(new Message(name, MessageType.MOVE, msg.sender, direction, msg.correspondenceID));
+          break;
+    
+        case ARRIVED:
+          sendMessage(new Message(name, MessageType.FREE, startStation, direction, msg.correspondenceID));
+          break;
+    
+        case FREED:
+          findRoute(schedule.poll());
+          break;
+    
+        case START:
+          findRoute(schedule.poll());
+          break;
+    
+        default:
+          break;
+      }
     }
   }
 
@@ -108,7 +118,9 @@ public class Train implements Runnable
    *
    *          Adds parameter message to queue of messages to be read
    */
-  public synchronized void receiveMessage(Message msg)
+  public
+  //synchronized
+  void receiveMessage(Message msg)
   {
     messages.add(msg);
   }
@@ -120,7 +132,9 @@ public class Train implements Runnable
    *           Prints trains current status and sends parameter message to
    *           current track (track the train is on)
    */
-  private synchronized void sendMessage(Message msg)
+  private
+  //synchronized
+  void sendMessage(Message msg)
   {
     currentTrack.receiveMessage(msg);
   }
@@ -132,7 +146,8 @@ public class Train implements Runnable
    *
    *                 Sets instance direction to parameter direction
    */
-  synchronized void setDirection(Direction direction)
+  //synchronized
+  void setDirection(Direction direction)
   {
     this.direction = direction;
   }
@@ -155,7 +170,8 @@ public class Train implements Runnable
    *                    Used to set current track train is on
    *                    and move train to current track
    */
-  synchronized void setCurrentTrack(Track currentTrack)
+  //synchronized
+  void setCurrentTrack(Track currentTrack)
   {
     this.currentTrack = currentTrack;
     relocate(currentTrack.getX(), currentTrack.getY());
@@ -166,7 +182,9 @@ public class Train implements Runnable
    * No parameters
    * @return String of train name
    */
-  public synchronized String getName()
+  public
+  //synchronized
+  String getName()
   {
     return name;
   }
@@ -213,7 +231,9 @@ public class Train implements Runnable
    *                    queue, removes message from queue, and reads
    *                    message
    */
-  private synchronized void readNextMessage()
+  private
+  //synchronized
+  void readNextMessage()
   {
     Message msg = messages.poll();
     messages.remove(msg);

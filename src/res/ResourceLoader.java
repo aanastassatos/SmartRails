@@ -3,7 +3,9 @@ package res;
 import javafx.scene.image.Image;
 
 import java.io.BufferedInputStream;
+import java.io.File;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 
 public class ResourceLoader
 {
@@ -25,5 +27,12 @@ public class ResourceLoader
     Image image = new Image(is, width, height, false, false);
     
     return image;
+  }
+  
+  public static InputStreamReader getTrackMap()
+  {
+    InputStream trackMap = rl.getClass().getResourceAsStream("TrackMap.txt");
+    InputStreamReader stream = new InputStreamReader(trackMap);
+    return stream;
   }
 }

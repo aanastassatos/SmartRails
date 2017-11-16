@@ -35,7 +35,8 @@ public class StationTrack extends Track
    *               <p>
    *               Adds a train to train array list at station
    */
-  synchronized void addTrain(Train train)
+//  synchronized
+  void addTrain(Train train)
   {
     trains.add(train);
     System.out.println(train.getName() + " was added to " + getName());
@@ -55,7 +56,8 @@ public class StationTrack extends Track
   }
   
   @Override
-  synchronized void sendMessage(Message msg)
+  //synchronized
+  void sendMessage(Message msg)
   {
     Train train = findTrain(msg.recipient);
     if (train != null)
@@ -78,7 +80,8 @@ public class StationTrack extends Track
    *             Passes message to next track
    */
   @Override
-  synchronized void readMessage(Message msg)
+//  synchronized
+  void readMessage(Message msg)
   {
     msg.print(getX(), getY());
     if (getNextTrack(msg.msgDir) == null)
@@ -89,16 +92,16 @@ public class StationTrack extends Track
         switch (msg.messageType)
         {
           case SEARCH:
-            addToOutGoing(new Message(name, MessageType.FOUND, msg.sender, msg.msgDir.getOpposite(), msg.correspondecnceID));
+            addToOutGoing(new Message(name, MessageType.FOUND, msg.sender, msg.msgDir.getOpposite(), msg.correspondenceID));
             break;
           
           case SECURE:
-            addToOutGoing(new Message(name, MessageType.SECURED, msg.sender, msg.msgDir.getOpposite(), msg.correspondecnceID));
+            addToOutGoing(new Message(name, MessageType.SECURED, msg.sender, msg.msgDir.getOpposite(), msg.correspondenceID));
             break;
           
           case MOVE:
             moveTrain();
-            addToOutGoing(new Message(name, MessageType.ARRIVED, msg.sender, msg.msgDir.getOpposite(), msg.correspondecnceID));
+            addToOutGoing(new Message(name, MessageType.ARRIVED, msg.sender, msg.msgDir.getOpposite(), msg.correspondenceID));
             break;
           
           case FREE:
@@ -115,7 +118,7 @@ public class StationTrack extends Track
       {
         if (msg.messageType == MessageType.SEARCH)
         {
-          addToOutGoing(new Message(msg.sender, MessageType.NOTFOUND, msg.recipient, msg.msgDir.getOpposite(), msg.correspondecnceID));
+          addToOutGoing(new Message(msg.sender, MessageType.NOTFOUND, msg.recipient, msg.msgDir.getOpposite(), msg.correspondenceID));
         }
           
         else
@@ -139,7 +142,8 @@ public class StationTrack extends Track
    * If a train is at the station, train is added to trains
    */
   @Override
-  synchronized void moveTrain()
+//  synchronized
+  void moveTrain()
   {
     if (getTrain() != null)
     {
@@ -162,7 +166,9 @@ public class StationTrack extends Track
    * @param trainName: train name of train to be found at station
    * @return train if train is at station
    */
-  private synchronized Train findTrain(String trainName)
+  private
+//  synchronized
+  Train findTrain(String trainName)
   {
     for (Train train : trains)
     {
@@ -178,7 +184,9 @@ public class StationTrack extends Track
    *
    * @return Direction train must travel
    */
-  private synchronized Direction initDirection()
+  private
+//  synchronized
+  Direction initDirection()
   {
     if (getNextTrack(Direction.RIGHT) == null)
     {

@@ -20,7 +20,9 @@ public class Track implements Runnable
   private LinkedBlockingQueue<Message> incomingMessages;
   private LinkedBlockingQueue<Message> outgoingMessages;
   private ArrayList<Correspondence> correspondences;
-  boolean locked = false;
+  private int lockedBy;
+  private boolean locked = false;
+  private boolean secure = false;
   private double x;
   private double y;
 
@@ -50,7 +52,8 @@ public class Track implements Runnable
    *            Takes a direction and returns the track piece in that direction
    *            relative to this track piece.
    */
-  synchronized Track getNextTrack(Direction direction)
+//  synchronized
+  Track getNextTrack(Direction direction)
   {
     if(direction == Direction.RIGHT) return right;
     return left;
@@ -80,7 +83,9 @@ public class Track implements Runnable
    * Sets the train currently on this track.
    * @param train: current train to set on track
    */
-  public synchronized void setTrain(Train train)
+  public
+//  synchronized
+  void setTrain(Train train)
   {
     this.train = train;
   }
@@ -97,7 +102,9 @@ public class Track implements Runnable
    * Returns a boolean indicating whether or not there is a train on this track piece.
    * @return true if train is on track
    */
-  public synchronized boolean isOccupied()
+  public
+//  synchronized
+  boolean isOccupied()
   {
     return (train != null);
   }
@@ -105,7 +112,7 @@ public class Track implements Runnable
   /**
    * @return Track type of track piece
    */
-  TrackType getTrackType()
+  public TrackType getTrackType()
   {
     return trackType;
   }
@@ -113,7 +120,8 @@ public class Track implements Runnable
   /**
    * Moves the train on this track to the next tack in the direction it is going.
    */
-  synchronized void moveTrain()
+  synchronized
+  void moveTrain()
   {
     Track next;
     if(train != null)
@@ -138,12 +146,12 @@ public class Track implements Runnable
     }
   }
   
-  double getX()
+  synchronized double getX()
   {
     return x;
   }
   
-  double getY()
+  synchronized double getY()
   {
     return y;
   }
@@ -152,7 +160,8 @@ public class Track implements Runnable
    * receiveMessage() method:
    * @param msg: message to be received
    */
-  synchronized void receiveMessage(Message msg)
+  //synchronized
+  void receiveMessage(Message msg)
   {
     try
     {
@@ -163,13 +172,15 @@ public class Track implements Runnable
     }
   }
   
-  synchronized void sendMessage(Message msg)
+  synchronized
+  void sendMessage(Message msg)
   {
     if(msg.isRecipient(train)) train.receiveMessage(msg);
     else if(getNextTrack(msg.msgDir) != null) getNextTrack(msg.msgDir).receiveMessage(msg);
   }
   
-  synchronized void addToOutGoing(Message msg)
+//  synchronized
+  void addToOutGoing(Message msg)
   {
     try
     {
@@ -184,7 +195,8 @@ public class Track implements Runnable
    * readMessage() method:
    * @param msg: Message to be read
    */
-  synchronized void readMessage(Message msg)
+//  synchronized
+  void readMessage(Message msg)
   {
     msg.print((int)x, (int)y);
     switch (msg.messageType)
@@ -210,7 +222,18 @@ public class Track implements Runnable
     }
   }
   
-  synchronized boolean containsCorrespondence(Message msg)
+  synchronized void setLocked(boolean locked)
+  {
+    this.locked = locked;
+  }
+  
+  synchronized void setSecure(boolean secure)
+  {
+    this.secure = secure;
+  }
+  
+  //  synchronized
+  boolean containsCorrespondence(Message msg)
   {
     for(Correspondence c : correspondences)
     {
@@ -220,7 +243,8 @@ public class Track implements Runnable
     return false;
   }
   
-  synchronized Correspondence findCorrespondence(Message msg)
+//  synchronized
+  Correspondence findCorrespondence(Message msg)
   {
     Correspondence newC = null;
     for(Correspondence c : correspondences)
@@ -228,7 +252,7 @@ public class Track implements Runnable
       if(c.messageBelongsHere(msg)) return c;
     }
     
-    if(msg.correspondecnceID != -1)
+    if(msg.correspondenceID != -1)
     {
       newC = new Correspondence(msg);
       correspondences.add(newC);
@@ -237,7 +261,8 @@ public class Track implements Runnable
     return newC;
   }
   
-  synchronized void clearCorrespondence(Message msg)
+//  synchronized
+  void clearCorrespondence(Message msg)
   {
     Correspondence c = findCorrespondence(msg);
     correspondences.remove(c);
@@ -248,13 +273,14 @@ public class Track implements Runnable
    * @param msg: message to secure current track
    *           Secures and sends message to next track
    */
-  synchronized void secureTrack(Message msg)
+  synchronized
+  void secureTrack(Message msg)
   {
     Correspondence c = findCorrespondence(msg);
     if(c.contains(MessageType.FOUND))
     {
       System.out.println("Track " + x + ", " + y + " is locked");
-      locked = true;
+      setSecure(true);
     }
   }
 
@@ -264,7 +290,8 @@ public class Track implements Runnable
    * No output
    *                frees current track
    */
-  synchronized void freeTrack(Message msg)
+  synchronized
+  void freeTrack(Message msg)
   {
     if(containsCorrespondence(msg))
     {
@@ -272,6 +299,7 @@ public class Track implements Runnable
       clearCorrespondence(msg);
     }
     
+    secure = false;
     locked = false;
   }
   
@@ -284,11 +312,28 @@ public class Track implements Runnable
       try
       {
         Message msg = incomingMessages.take();
-        if(msg.correspondecnceID != -1)
+        
+        if((!locked && msg.correspondenceID != -1) || (locked && lockedBy < msg.correspondenceID))
         {
-          findCorrespondence(msg).addMessage(msg);
+          locked = true;
+          lockedBy = msg.correspondenceID;
         }
-        readMessage(msg);
+        
+        else
+        {
+          addToOutGoing(new Message(msg.getRecipient(), msg.messageType, msg.sender, msg.msgDir.getOpposite(), msg.correspondenceID));
+        }
+  
+        if(msg.correspondenceID == -1 || (locked && lockedBy == msg.correspondenceID) || !locked ||
+            msg.messageType == MessageType.FOUND || msg.messageType == MessageType.NOTFOUND || msg.messageType == MessageType.FREED)
+        {
+          if (msg.correspondenceID != -1)
+          {
+            findCorrespondence(msg).addMessage(msg);
+          }
+          readMessage(msg);
+        }
+        
         msg = outgoingMessages.take();
         sendMessage(msg);
         

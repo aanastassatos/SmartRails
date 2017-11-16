@@ -23,7 +23,8 @@ public class LightTrack extends Track
     lightOn.setValue(false);
   }
   
-  synchronized void setLightOn(boolean lightOn)
+//  synchronized
+  void setLightOn(boolean lightOn)
   {
     this.lightOn.setValue(lightOn);
   }

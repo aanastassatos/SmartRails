@@ -15,7 +15,7 @@ public class Message
   public String recipient; //StationTrack of destination
   public MessageType messageType;
   public Direction msgDir; //Direction to send the message
-  public int correspondecnceID;
+  public int correspondenceID;
 
   /**
    * Message constructor:
@@ -30,7 +30,7 @@ public class Message
     this.messageType = messageType;
     this.recipient = recipient;
     this.msgDir = msgDir;
-    this.correspondecnceID = correspondenceID;
+    this.correspondenceID = correspondenceID;
   }
 
   /**
@@ -82,6 +82,6 @@ public class Message
   
   public synchronized Message changeDirection()
   {
-    return new Message(sender, messageType, recipient, msgDir.getOpposite(), correspondecnceID);
+    return new Message(sender, messageType, recipient, msgDir.getOpposite(), correspondenceID);
   }
 }

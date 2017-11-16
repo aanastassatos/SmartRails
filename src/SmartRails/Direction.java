@@ -1,3 +1,7 @@
+/**
+ * The enum values for direction used throughout the code.
+ */
+
 package SmartRails;
 
 /**
@@ -15,7 +19,10 @@ public enum Direction
     DOWN.opposite = UP;
   }
   
-  
+  /**
+   * Returns the opposite of this enum
+   * @return
+   */
   public Direction getOpposite(){
     return opposite;
   }

@@ -29,7 +29,6 @@ public class SwitchTrack extends Track
   {
     super(trackType, x, y);
     switchOn = false;
-    //    switchID = UUID.randomUUID().toString();
     
     switch (trackType)
     {
@@ -80,13 +79,6 @@ public class SwitchTrack extends Track
     return super.getNextTrack(direction);
   }
   
-  //  @Override
-  //  synchronized void sendMessage(Message msg)
-  //  {
-  //    if(msg.isRecipient(connection)) connection.receiveMessage(msg);
-  //    else super.sendMessage(msg);
-  //  }
-  
   /**
    * readMessage() method:
    * @param msg: Message to be read
@@ -131,24 +123,6 @@ public class SwitchTrack extends Track
           break;
       }
     }
-  }
-  
-  synchronized void search(Message msg, boolean switchOn)
-  {
-    if(!switchOn || (switchOn && msg.msgDir == direction.getOpposite()))
-    {
-      findCorrespondence(msg).setSwitchValue(switchOn);
-      if(switchOn) turnSwitchOn();
-      else if(!switchOn && msg.msgDir == direction.getOpposite()) turnSwitchOff();
-      addToOutGoing(msg);
-    }
-    
-  }
-  
-  synchronized void saveSwitchValues(Message msg)
-  {
-    Correspondence c = findCorrespondence(msg);
-    if (connection.findCorrespondence(msg).getSwitchValue()) c.setSwitchValue(true);
   }
   
   @Override
@@ -206,7 +180,7 @@ public class SwitchTrack extends Track
     this.switchOn = switchOn;
   }
   
-  synchronized void changeLight(boolean lightOn)
+  private synchronized void changeLight(boolean lightOn)
   {
     Track track = super.getNextTrack(direction.getOpposite());
     while(!(track instanceof StationTrack))
@@ -214,14 +188,5 @@ public class SwitchTrack extends Track
       if(track instanceof LightTrack) ((LightTrack) track).setLightOn(lightOn);
       track = track.getNextTrack(direction.getOpposite());
     }
-  }
-  
-  /**
-   * Returns whether or not the switch is on.
-   * @return boolean true if switch is on
-   */
-  synchronized boolean isSwitchOn()
-  {
-    return switchOn;
   }
 }

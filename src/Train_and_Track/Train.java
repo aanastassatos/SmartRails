@@ -21,10 +21,10 @@ public class Train implements Runnable
   private String name;  //Train name
   private TrainView trainView; //Draw/redraw train
   private String destination; //Station destination for train
-  private LinkedList<String> schedule;
-  private String startStation;
-  private LinkedBlockingQueue<Message> incomingMessages;
-  private LinkedBlockingQueue<Message> outgoingMessages;
+  private LinkedList<String> schedule; //LinkedList containing the destinations for the train
+  private String startStation;  //Station that train starts each trip at.
+  private LinkedBlockingQueue<Message> incomingMessages;  //Linked blocking queue containing all the messages to be read.
+  private LinkedBlockingQueue<Message> outgoingMessages;  //Linked blocking queue containing all the messages to be sent.
 
   /**
    * Train constructor:
@@ -44,27 +44,71 @@ public class Train implements Runnable
     new Thread(this).start();
   }
   
+  /**
+   * Sets the train's schedule
+   * @param schedule
+   */
   public void setSchedule(LinkedList<String> schedule)
   {
     this.schedule = schedule;
   }
-
+  
   /**
-   * sendOff() method:
-   * @param destination: String name of destination station track
-   * No output
-   *
-   *                   sends current track first search message
+   * getTrainView() method:
+   * No parameters
+   * @return TrainView set to train instance
    */
-  //synchronized
-  void findRoute(String destination)
+  public void setTrainView(TrainView trainView)
   {
-    if(destination != null)
+    this.trainView = trainView;
+  }
+  
+  /**
+   * run() method from Runnable interface
+   *
+   * When thread is started, run begins reading messages queue for instruction and sending messages
+   */
+  @Override
+  public void run()
+  {
+    while(true)
     {
-      startStation = ((StationTrack) currentTrack).getName();
-      addToOutGoing(new Message(name, MessageType.SEARCH, destination, direction, Integer.parseInt(name)));
+      try
+      {
+        Message msg = incomingMessages.take();
+        if(msg != null)
+        {
+          readMessage(msg);
+        }
+        
+        msg = outgoingMessages.take();
+        
+        sendMessage(msg);
+      } catch (InterruptedException e)
+      {
+        e.printStackTrace();
+      }
     }
   }
+  
+  /**
+   * recieveMessage() method:
+   * @param msg: message to be recieved
+   * No output
+   *
+   *          Adds parameter message to queue of messages to be read
+   */
+  public void receiveMessage(Message msg)
+  {
+    try
+    {
+      incomingMessages.put(msg);
+    } catch (InterruptedException e)
+    {
+      e.printStackTrace();
+    }
+  }
+  
   /**
    * readMessage() method:
    * @param msg: Message to be read
@@ -73,7 +117,7 @@ public class Train implements Runnable
    *           if message type is found, sends message to secure
    *           if message type is secured, sends message to move the train
    */
-  private synchronized void readMessage(Message msg)
+  private void readMessage(Message msg)
   {
     msg.print(-1,-1);
     
@@ -89,50 +133,30 @@ public class Train implements Runnable
         case FOUND:
           addToOutGoing(new Message(name, MessageType.SECURE, msg.sender, direction, msg.correspondenceID));
           break;
-    
+        
         case SECURED:
           currentTrack.setTrain(this);
           addToOutGoing(new Message(name, MessageType.MOVE, msg.sender, direction, msg.correspondenceID));
           break;
-    
+        
         case ARRIVED:
           addToOutGoing(new Message(name, MessageType.FREE, startStation, direction, msg.correspondenceID));
           break;
-    
+        
         case FREED:
           findRoute(schedule.poll());
           break;
-    
+        
         case START:
           findRoute(schedule.poll());
           break;
-    
+        
         default:
           break;
       }
     }
   }
-
-  /**
-   * recieveMessage() method:
-   * @param msg: message to be recieved
-   * No output
-   *
-   *          Adds parameter message to queue of messages to be read
-   */
-  public
-  //synchronized
-  void receiveMessage(Message msg)
-  {
-    try
-    {
-      incomingMessages.put(msg);
-    } catch (InterruptedException e)
-    {
-      e.printStackTrace();
-    }
-  }
-
+  
   /**
    * sendMessage() method:
    * @param msg: Message to be sent
@@ -140,11 +164,40 @@ public class Train implements Runnable
    *           Prints trains current status and sends parameter message to
    *           current track (track the train is on)
    */
-  private
-  //synchronized
-  void sendMessage(Message msg)
+  private void sendMessage(Message msg)
   {
     currentTrack.receiveMessage(msg);
+  }
+  
+  /**
+   * Adds given message to outgoingMessages
+   * @param msg
+   */
+  private void addToOutGoing(Message msg)
+  {
+    try
+    {
+      outgoingMessages.put(msg);
+    } catch (InterruptedException e)
+    {
+      e.printStackTrace();
+    }
+  }
+  
+  /**
+   * sendOff() method:
+   * @param destination: String name of destination station track
+   * No output
+   *
+   *                   sends current track first search message
+   */
+  void findRoute(String destination)
+  {
+    if(destination != null)
+    {
+      startStation = ((StationTrack) currentTrack).getName();
+      addToOutGoing(new Message(name, MessageType.SEARCH, destination, direction, Integer.parseInt(name)));
+    }
   }
 
   /**
@@ -154,7 +207,6 @@ public class Train implements Runnable
    *
    *                 Sets instance direction to parameter direction
    */
-  //synchronized
   void setDirection(Direction direction)
   {
     this.direction = direction;
@@ -171,42 +223,15 @@ public class Train implements Runnable
   }
 
   /**
-   * setCurrentTrack() method:
-   * @param currentTrack: track piece
-   * No output
-   *
-   *                    Used to set current track train is on
-   *                    and move train to current track
-   */
-  //synchronized
-  void setCurrentTrack(Track currentTrack)
-  {
-    this.currentTrack = currentTrack;
-    relocate(currentTrack.getX(), currentTrack.getY());
-  }
-
-  /**
    * getName() method:
    * No parameters
    * @return String of train name
    */
-  public
-  //synchronized
   String getName()
   {
     return name;
   }
-
-  /**
-   * getTrainView() method:
-   * No parameters
-   * @return TrainView set to train instance
-   */
-  public void setTrainView(TrainView trainView)
-  {
-    this.trainView = trainView;
-  }
-
+  
   /**
    * relocate() method:
    * @param x: x coordinate to move train to
@@ -230,58 +255,17 @@ public class Train implements Runnable
     trainView.move(x, y);
   }
   
-  private
-  void addToOutGoing(Message msg)
-  {
-    try
-    {
-      outgoingMessages.put(msg);
-    } catch (InterruptedException e)
-    {
-      e.printStackTrace();
-    }
-  }
-  
   /**
-   * run() method from Runnable interface
+   * setCurrentTrack() method:
+   * @param currentTrack: track piece
+   * No output
    *
-   * When thread is started, run begins reading messages queue for instruction
+   *                    Used to set current track train is on
+   *                    and move train to current track
    */
-  @Override
-  public void run()
+  void setCurrentTrack(Track currentTrack)
   {
-    while(true)
-    {
-//      try
-//      {
-//        Thread.sleep(0, 1);
-//      } catch (InterruptedException e)
-//      {
-//        e.printStackTrace();
-//      }
-      try
-      {
-        Message msg = incomingMessages.take();
-        if(msg != null)
-        {
-          readMessage(msg);
-        }
-        
-        msg = outgoingMessages.take();
-        
-        sendMessage(msg);
-      } catch (InterruptedException e)
-      {
-        e.printStackTrace();
-      }
-  
-      //      try{
-      //        Thread.sleep(50);
-      //      } catch (InterruptedException e)
-      //      {
-      //        System.out.println(Thread.currentThread().getName()+" died.");
-      //        break;
-      //      }
-    }
+    this.currentTrack = currentTrack;
+    relocate(currentTrack.getX(), currentTrack.getY());
   }
 }

@@ -1,8 +1,14 @@
+/**
+ * TrackMaker reads in the track specifications from TrackMap.txt in the res folder and builds it
+ * both visually as well as virtually.
+ */
+
 package GUI;
 
 import Train_and_Track.*;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
+import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 
 import java.io.BufferedReader;
@@ -18,8 +24,6 @@ public class TrackMaker
   //) = Left switch up
   //[ = Right switch down
   //] = Left switch down
-  //z = Z switch
-  //s = S switch
 //  private static final char [][] CHAR_MAP =  {{'@', '*', ']', '-', '-', '[', '*', '&'},
 //                                              {'@', '*', '(', ']', '[', ')', '*', '&'},
 //                                              {'@', '*', '[', '(', ')', ']', '*', '&'},
@@ -28,8 +32,8 @@ public class TrackMaker
   private static final BufferedReader trackMapReader = new BufferedReader(res.ResourceLoader.getTrackMap());
   private static final char [][] CHAR_MAP = makeCharMap();
   private static final int FONT_SIZE = 27;
-  public static final double IMAGE_WIDTH = SmartRailsWindow.WINDOW_WIDTH/CHAR_MAP[1].length;
-  public static final double IMAGE_HEIGHT = SmartRailsWindow.WINDOW_HEIGHT/CHAR_MAP.length;
+  public static final double IMAGE_WIDTH = SmartRailsWindow.WINDOW_WIDTH/CHAR_MAP[1].length; //Denotes the width that each image must be
+  public static final double IMAGE_HEIGHT = SmartRailsWindow.WINDOW_HEIGHT/CHAR_MAP.length; //Denotes the height that each image must be
   private final Image STRAIGHT_RAIL = res.ResourceLoader.getTrackImage("straightrail.png", IMAGE_WIDTH, IMAGE_HEIGHT);
   private final Image RED_LIGHT_RAIL = res.ResourceLoader.getTrackImage("redlightrail.png", IMAGE_WIDTH, IMAGE_HEIGHT);
   private final Image GREEN_LIGHT_RAIL = res.ResourceLoader.getTrackImage("greenlightrail.png", IMAGE_WIDTH, IMAGE_HEIGHT);
@@ -49,27 +53,51 @@ public class TrackMaker
   private ArrayList<TrainView> trainViews = new ArrayList<>();
   private ArrayList<LightTrackView> lightViews = new ArrayList<>();
   
+  /**
+   * Constructor for TrackMaker.
+   * @param num_trains
+   * @param gc
+   */
   TrackMaker(int num_trains, GraphicsContext gc)
   {
+    gc.setFill(Color.GREEN);
+    gc.fillRect(0, 0, SmartRailsWindow.WINDOW_WIDTH, SmartRailsWindow.WINDOW_HEIGHT);
     makeTrack(gc);
     makeTrainViews(num_trains);
   }
-
-  ArrayList<Line> getLines()
-  {
-    return lines;
-  }
-
-  ArrayList<TrainView> getTrainViews()
-  {
-    return trainViews;
-  }
   
+  /**
+   * returns an ArrayList of the lightTrackViews created in this class
+   * @return
+   */
   ArrayList<LightTrackView> getLightViews()
   {
     return lightViews;
   }
   
+  /**
+   * returns an ArrayList of the lines created in this class
+   * @return
+   */
+  ArrayList<Line> getLines()
+  {
+    return lines;
+  }
+  
+  /**
+   * returns an ArrayList of the trainViews created in this class
+   * @return
+   */
+  ArrayList<TrainView> getTrainViews()
+  {
+    return trainViews;
+  }
+  
+  /**
+   * Takes the graphics context of a canvas and draws the track on it while also creating the track virtually and
+   * placing the pieces in a sort of linked list with a start point and end point called a Line.
+   * @param gc
+   */
   private void makeTrack(GraphicsContext gc)
   {
     Track[][] trackMap = new Track[CHAR_MAP.length][CHAR_MAP[0].length];
@@ -174,6 +202,10 @@ public class TrackMaker
     }
   }
   
+  /**
+   * Makes train views for the number of trains specified
+   * @param num_trains
+   */
   private void makeTrainViews(int num_trains)
   {
     double random;
@@ -214,6 +246,10 @@ public class TrackMaker
     }
   }
   
+  /**
+   * Makes a character array out of the TrackMap.txt file in res to be used by makeTrack().
+   * @return char[][]
+   */
   private static char [][] makeCharMap()
   {
     ArrayList<char[]> lines = new ArrayList<>();
@@ -241,6 +277,10 @@ public class TrackMaker
     return charMap;
   }
   
+  /**
+   * Checks to ensure that the given specifications for the track are valid. If they are not, the program ends unceremoniously.
+   * @param charMap
+   */
   private static void checkCharMap(char[][] charMap)
   {
     char c;
@@ -249,6 +289,8 @@ public class TrackMaker
       for (int j = 0; j < charMap[i].length; j++)
       {
         c = charMap[i][j];
+        if((j == 0 && c != '@') || (j == charMap[i].length && c != '&')) System.exit(40);
+        
         if(c == ')' || c == '(')
         {
           if(i == 0) System.exit(1);

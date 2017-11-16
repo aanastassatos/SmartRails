@@ -2,7 +2,7 @@
  * LightTrackView Class
  * Extends ImageView
  *
- *
+ * LightTrackView is used in the GUI to visually represent the state of the light track it is attached to
  */
 
 package GUI;
@@ -14,22 +14,9 @@ import javafx.scene.image.ImageView;
 
 public class LightTrackView extends ImageView
 {
-  private final Image greenLight;
-  private final Image redLight;
-
-  /**
-   * getListener method
-   * @return ChangeListener listener
-   */
-  public ChangeListener getListener()
-  {
-    return listener;
-  }
-
-  /**
-   *
-   */
-  private ChangeListener listener = new ChangeListener()
+  private final Image greenLight; //image for the green Light.
+  private final Image redLight; //image for the red light.
+  private ChangeListener listener = new ChangeListener()  //ChangeListener that is put on the light track to determine which color the light should be.
   {
     @Override
     public void changed(ObservableValue observableValue, Object o, Object t1)
@@ -38,7 +25,7 @@ public class LightTrackView extends ImageView
       else setImage(greenLight);
     }
   };
-
+  
   /**
    * LightTrackView Constructor
    * @param greenLight: Image of green light - train can pass
@@ -53,5 +40,14 @@ public class LightTrackView extends ImageView
     setFitWidth(greenLight.getWidth());
     setFitHeight(greenLight.getHeight());
     setImage(greenLight);
+  }
+  
+  /**
+   * getListener method
+   * @return ChangeListener listener
+   */
+  public ChangeListener getListener()
+  {
+    return listener;
   }
 }

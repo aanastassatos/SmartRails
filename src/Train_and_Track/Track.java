@@ -1,7 +1,6 @@
 /**
  * Track class (implements Runnable interface)
- *
- *
+ * Deals with all the major functions of the tracks.
  */
 package Train_and_Track;
 
@@ -17,12 +16,11 @@ public class Track implements Runnable
   private Track left; //Reference to track piece to the left.
   private Track right;  //Reference to track piece to the left.
 
-  private LinkedBlockingQueue<Message> incomingMessages;
-  private LinkedBlockingQueue<Message> outgoingMessages;
-  private ArrayList<Correspondence> correspondences;
-  private int lockedBy;
-  private boolean locked = false;
-  private boolean secure = false;
+  private LinkedBlockingQueue<Message> incomingMessages; //Linked blocking queue containing all the messages to be read.
+  private LinkedBlockingQueue<Message> outgoingMessages; //Linked blocking queue containing all the messages to be sent.
+  private ArrayList<Correspondence> correspondences;  //ArrayList containing correspondences.
+  private boolean locked = false; //Boolean denoting whether or not this track is locked.
+  private boolean secure = false; //Boolean denoting whether or not this track is secure.
   private double x;
   private double y;
 
@@ -42,21 +40,6 @@ public class Track implements Runnable
     outgoingMessages = new LinkedBlockingQueue<>();
     correspondences = new ArrayList<>();
     new Thread(this).start();
-  }
-  
-  /**
-   * getNextTrack() method:
-   * @param direction: direction in which to get next track
-   * @return Track in specified direction
-   *
-   *            Takes a direction and returns the track piece in that direction
-   *            relative to this track piece.
-   */
-//  synchronized
-  Track getNextTrack(Direction direction)
-  {
-    if(direction == Direction.RIGHT) return right;
-    return left;
   }
   
   /**
@@ -80,11 +63,118 @@ public class Track implements Runnable
   }
   
   /**
+   * While the program is running, the track takes a message out of incoming messages, reads it, does what it needs
+   * to do with it, then takes a message out of outgoing messages and sends it.
+   */
+  @Override
+  public void run()
+  {
+    System.out.println(x+", "+y+": "+Thread.currentThread().getName());
+    while(true)
+    {
+      try
+      {
+        Message msg = incomingMessages.take();
+        
+        if(msg.correspondenceID != -1)
+        {
+          findCorrespondence(msg).addMessage(msg);
+        }
+        
+        readMessage(msg);
+        msg = outgoingMessages.take();
+        sendMessage(msg);
+      } catch (InterruptedException e)
+      {
+        e.printStackTrace();
+      }
+    }
+  }
+  
+  /**
+   * receiveMessage() method:
+   * @param msg: message to be received
+   */
+  void receiveMessage(Message msg)
+  {
+    try
+    {
+      incomingMessages.put(msg);
+    } catch (InterruptedException e)
+    {
+      e.printStackTrace();
+    }
+  }
+  
+  /**
+   * Sends the given message to the next track.
+   * @param msg
+   */
+  void sendMessage(Message msg)
+  {
+    if(msg.isRecipient(train)) train.receiveMessage(msg);
+    else if(getNextTrack(msg.msgDir) != null) getNextTrack(msg.msgDir).receiveMessage(msg);
+  }
+  
+  void addToOutGoing(Message msg)
+  {
+    try
+    {
+      outgoingMessages.put(msg);
+    } catch (InterruptedException e)
+    {
+      e.printStackTrace();
+    }
+  }
+  
+  /**
+   * readMessage() method:
+   * @param msg: Message to be read
+   */
+  void readMessage(Message msg)
+  {
+    msg.print((int)x, (int)y);
+    switch (msg.messageType)
+    {
+      case MOVE:
+        moveTrain();
+        addToOutGoing(msg);
+        break;
+      
+      case SECURE:
+        secureTrack(msg);
+        addToOutGoing(msg);
+        break;
+      
+      case FREE:
+        freeTrack(msg);
+        addToOutGoing(msg);
+        break;
+      
+      default:
+        addToOutGoing(msg);
+        break;
+    }
+  }
+  
+  /**
+   * getNextTrack() method:
+   * @param direction: direction in which to get next track
+   * @return Track in specified direction
+   *
+   *            Takes a direction and returns the track piece in that direction
+   *            relative to this track piece.
+   */
+  Track getNextTrack(Direction direction)
+  {
+    if(direction == Direction.RIGHT) return right;
+    return left;
+  }
+  
+  /**
    * Sets the train currently on this track.
    * @param train: current train to set on track
    */
-  public
-//  synchronized
   void setTrain(Train train)
   {
     this.train = train;
@@ -99,28 +189,8 @@ public class Track implements Runnable
   }
   
   /**
-   * Returns a boolean indicating whether or not there is a train on this track piece.
-   * @return true if train is on track
-   */
-  public
-//  synchronized
-  boolean isOccupied()
-  {
-    return (train != null);
-  }
-  
-  /**
-   * @return Track type of track piece
-   */
-  public TrackType getTrackType()
-  {
-    return trackType;
-  }
-  
-  /**
    * Moves the train on this track to the next tack in the direction it is going.
    */
-  synchronized
   void moveTrain()
   {
     Track next;
@@ -146,104 +216,71 @@ public class Track implements Runnable
     }
   }
   
-  synchronized double getX()
-  {
-    return x;
-  }
-  
-  synchronized double getY()
-  {
-    return y;
-  }
-
   /**
-   * receiveMessage() method:
-   * @param msg: message to be received
+   * Returns a boolean indicating whether or not there is a train on this track piece.
+   * @return true if train is on track
    */
-  //synchronized
-  void receiveMessage(Message msg)
+  synchronized boolean isOccupied()
   {
-    try
-    {
-      incomingMessages.put(msg);
-    } catch (InterruptedException e)
-    {
-      e.printStackTrace();
-    }
+    return (train != null);
   }
   
-  synchronized
-  void sendMessage(Message msg)
-  {
-    if(msg.isRecipient(train)) train.receiveMessage(msg);
-    else if(getNextTrack(msg.msgDir) != null) getNextTrack(msg.msgDir).receiveMessage(msg);
-  }
-  
-//  synchronized
-  void addToOutGoing(Message msg)
-  {
-    try
-    {
-      outgoingMessages.put(msg);
-    } catch (InterruptedException e)
-    {
-      e.printStackTrace();
-    }
-  }
-
   /**
-   * readMessage() method:
-   * @param msg: Message to be read
+   * Sets the locked boolean value.
+   * @param locked
    */
-//  synchronized
-  void readMessage(Message msg)
-  {
-    msg.print((int)x, (int)y);
-    switch (msg.messageType)
-    {
-      case MOVE:
-        moveTrain();
-        addToOutGoing(msg);
-        break;
-
-      case SECURE:
-        secureTrack(msg);
-        addToOutGoing(msg);
-        break;
-          
-      case FREE:
-        freeTrack(msg);
-        addToOutGoing(msg);
-        break;
-        
-      default:
-        addToOutGoing(msg);
-        break;
-    }
-  }
-  
-  synchronized void setLocked(boolean locked)
+  void setLocked(boolean locked)
   {
     this.locked = locked;
   }
   
-  synchronized void setSecure(boolean secure)
+  /**
+   * Sets the secure boolean value.
+   * @param secure
+   */
+  void setSecure(boolean secure)
   {
     this.secure = secure;
   }
   
-  //  synchronized
-  boolean containsCorrespondence(Message msg)
+  /**
+   * secureTrack() method:
+   * @param msg: message to secure current track
+   *           Secures and sends message to next track
+   */
+  void secureTrack(Message msg)
   {
-    for(Correspondence c : correspondences)
+    Correspondence c = findCorrespondence(msg);
+    if(c.contains(MessageType.FOUND))
     {
-      if(c.messageBelongsHere(msg)) return true;
+      System.out.println("Track " + x + ", " + y + " is locked");
+      setSecure(true);
+    }
+  }
+
+  /**
+   * freeTrack() method:
+   * No parameters
+   * No output
+   *                frees current track
+   */
+  void freeTrack(Message msg)
+  {
+    if(containsCorrespondence(msg))
+    {
+      System.out.println("Track " + x + ", " + y + " is freed");
+      clearCorrespondence(msg);
     }
     
-    return false;
+    setSecure(false);
+    setLocked(false);
   }
   
-//  synchronized
+  /**
+   * Finds the correspondence corresponding to the message given. If there is none, it creates one.
+   * @param msg
+   * @return Correspondence
+   */
   Correspondence findCorrespondence(Message msg)
   {
     Correspondence newC = null;
@@ -261,7 +298,26 @@ public class Track implements Runnable
     return newC;
   }
   
-//  synchronized
+  /**
+   * Returns a boolean value denoting whether or not this track's correspondences contains a correspondence corresponding
+   * to the given message.
+   * @param msg
+   * @return boolean
+   */
+  boolean containsCorrespondence(Message msg)
+  {
+    for(Correspondence c : correspondences)
+    {
+      if(c.messageBelongsHere(msg)) return true;
+    }
+    
+    return false;
+  }
+  
+  /**
+   * Clears the correspondence corresponding to the given message.
+   * @param msg
+   */
   void clearCorrespondence(Message msg)
   {
     Correspondence c = findCorrespondence(msg);
@@ -269,56 +325,28 @@ public class Track implements Runnable
   }
   
   /**
-   * secureTrack() method:
-   * @param msg: message to secure current track
-   *           Secures and sends message to next track
+   * Returns the X value of this track piece.
+   * @return
    */
-  synchronized
-  void secureTrack(Message msg)
+  double getX()
   {
-    Correspondence c = findCorrespondence(msg);
-    if(c.contains(MessageType.FOUND))
-    {
-      System.out.println("Track " + x + ", " + y + " is locked");
-      setSecure(true);
-    }
-  }
-
-  /**
-   * freeTrack() method:
-   * No parameters
-   * No output
-   *                frees current track
-   */
-  synchronized
-  void freeTrack(Message msg)
-  {
-    if(containsCorrespondence(msg))
-    {
-      System.out.println("Track " + x + ", " + y + " is freed");
-      clearCorrespondence(msg);
-    }
-    
-    secure = false;
-    locked = false;
+    return x;
   }
   
-  @Override
-  public void run()
+  /**
+   * Returns the Y value of this track piece.
+   * @return
+   */
+  double getY()
   {
-    System.out.println(x+", "+y+": "+Thread.currentThread().getName());
-    while(true)
-    {
-      try
-      {
-        Message msg = incomingMessages.take();
-        readMessage(msg);
-        msg = outgoingMessages.take();
-        sendMessage(msg);
-      } catch (InterruptedException e)
-      {
-        e.printStackTrace();
-      }
-    }
+    return y;
+  }
+  
+  /**
+   * @return Track type of track piece
+   */
+  TrackType getTrackType()
+  {
+    return trackType;
   }
 }

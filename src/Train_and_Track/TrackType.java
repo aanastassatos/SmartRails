@@ -1,3 +1,7 @@
+/**
+ * Enum for the different kinds of tracks
+ */
+
 package Train_and_Track;
 
 public enum TrackType

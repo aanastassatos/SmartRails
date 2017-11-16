@@ -1,3 +1,7 @@
+/**
+ * Creates the window for the GUI
+ */
+
 package GUI;
 
 import SmartRails.*;
@@ -15,13 +19,10 @@ import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
-import javafx.scene.media.MediaPlayer;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
 
-import java.io.BufferedReader;
-import java.io.File;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.Random;
@@ -34,8 +35,7 @@ public class SmartRailsWindow extends Application
 
   private static final String font = "Monospaced";
   private static final int fontsize = 20;
-  private static ArrayList<Train> trains = new ArrayList<>();
-  private ChoiceBox<String> destination = new ChoiceBox<>();
+  private static ArrayList<Train> trains = new ArrayList<>(); //Contains the trains
   private TrackMaker track;
 
   private static int NUM_TRAINS;
@@ -89,7 +89,8 @@ public class SmartRailsWindow extends Application
     pickTrain.setFont(Font.font(font, 20));
 
     ChoiceBox<Integer> numOfTrains = new ChoiceBox<>();
-    numOfTrains.getItems().addAll(1, 2);
+    //numOfTrains.getItems().addAll(1, 2);
+    numOfTrains.getItems().addAll(1);
 
     Image title = res.ResourceLoader.getTitle("SmartRailsTitle", (int)vbox.getWidth(), (int)vbox.getHeight());
     ImageView imageView = new ImageView(title);
@@ -112,6 +113,7 @@ public class SmartRailsWindow extends Application
     stage.setScene(opener);
   }
 
+  //TODO: Write comments for this
   private void scheduleScene(Stage stage, Background bkgd, Canvas canvas)
   {
     int vertInset = 70;
@@ -145,6 +147,7 @@ public class SmartRailsWindow extends Application
     stage.setScene(schedScene);
   }
 
+  //TODO: Write comments for this
   private void trainScene(Stage stage, Canvas canvas)
   {
     Group root = new Group();
@@ -163,10 +166,11 @@ public class SmartRailsWindow extends Application
     Scene scene = new Scene(root);
     stage.setScene(scene);
     SmartRails smartRails = new SmartRails(trains);
-    smartRails.setDestination(destination.getValue());
+//    smartRails.setDestination(destination.getValue());
     new Thread(smartRails).start();
   }
 
+  //TODO: Write comments for this
   private void setTrainAtStation(ChoiceBox<String> choice, Train train, TrackMaker track)
   {
     char sideCharacter = choice.getValue().charAt(0);
@@ -191,6 +195,7 @@ public class SmartRailsWindow extends Application
     b.setBackground(background);
   }
 
+  //TODO: Write comments for this
   private HBox trainSelection(int trainNumber, Background bkgd, TrackMaker track)
   {
     int spacing = 20;
@@ -209,8 +214,21 @@ public class SmartRailsWindow extends Application
       int i = 0;
       for(ChoiceBox<String> choice : destinations)
       {
-        if(i % 2 == 0) choice.getItems().addAll("A0", "A1", "A2", "A3");
-        else choice.getItems().addAll("B0", "B1", "B2", "B3");
+        if(i % 2 == 0)
+        {
+          for(int j = 0; j < track.getLines().size(); j++)
+          {
+            choice.getItems().add("A"+Integer.toString(j));
+          }
+        }
+        
+        else
+        {
+          for(int j = 0; j < track.getLines().size(); j++)
+          {
+            choice.getItems().add("B"+Integer.toString(j));
+          }
+        }
         i++;
       }
     });
@@ -220,8 +238,21 @@ public class SmartRailsWindow extends Application
       int i = 0;
       for(ChoiceBox<String> choice : destinations)
       {
-        if(i % 2 != 0) choice.getItems().addAll("A0", "A1", "A2", "A3");
-        else choice.getItems().addAll("B0", "B1", "B2", "B3");
+        if(i % 2 != 0)
+        {
+          for(int j = 0; j < track.getLines().size(); j++)
+          {
+            choice.getItems().add("A"+Integer.toString(j));
+          }
+        }
+  
+        else
+        {
+          for(int j = 0; j < track.getLines().size(); j++)
+          {
+            choice.getItems().add("B"+Integer.toString(j));
+          }
+        }
         i++;
       }
     });
@@ -245,6 +276,7 @@ public class SmartRailsWindow extends Application
     return hBox;
   }
 
+  //TODO: Write comments for this
   private void makeTrains(TrackMaker track)
   {
     Train train;

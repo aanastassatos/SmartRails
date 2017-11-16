@@ -1,8 +1,5 @@
 /**
- * SmartRails class creates a new thread with
- * each trip and starts each train respectively
- *
- * TODO: Will read trips from text file
+ * Sends a start message to each train.
  */
 
 package SmartRails;
@@ -18,9 +15,6 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 public class SmartRails implements Runnable
 {
   private ArrayList<Train> trains;
-  private boolean running;
-  private String destination;
-
 
   /**
    * SmartRails constructor:
@@ -34,35 +28,18 @@ public class SmartRails implements Runnable
     this.trains = trains;
   }
 
-  public void setDestination(String destination)
-  {
-    this.destination = destination;
-  }
-
   /**
    * run() method:  From runnable interface
    * No parameters/No output
    *
-   * Called when thread is started.  Sets trips and begins trains
+   * Sends a start message to each train and that is it.
    */
   @Override
   public void run()
   {
-    LinkedList<String> schedule1 = new LinkedList<>();
-    LinkedList<String> schedule2 = new LinkedList<>();
-//    schedule1.add("B1");
-//    schedule1.add("A1");
-//    schedule1.add("B0");
-//    schedule1.add("A2");
-//    schedule1.add("B3");
-//    schedule1.add("A0");
-//    schedule1.add("B0");
-//    schedule1.add("A1");
-//    schedule1.add("B2");
-//    schedule1.add("A3");
-//    trains.get(0).setSchedule(schedule1);
-//    trains.get(1).setSchedule(schedule2);
-    trains.get(0).receiveMessage(new Message(null, MessageType.START, null, null, -1));
-    //trains.get(1).receiveMessage(new Message(null, MessageType.START, null, null, -1));
+    for(int i = 0; i < trains.size(); i++)
+    {
+      trains.get(i).receiveMessage(new Message(null, MessageType.START, null, null, -1));
+    }
   }
 }

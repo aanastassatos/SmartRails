@@ -1,5 +1,6 @@
 /**
  * StationTrack class
+ * Extends Track
  */
 package Train_and_Track;
 
@@ -14,7 +15,7 @@ public class StationTrack extends Track
   private ArrayList<Train> trains; //Trains at station
   
   /**
-   * StationTrack constructor:
+   * StationTrack constructor
    *
    * @param name: Station name
    * @param x:    x coordinate for drawing station
@@ -28,23 +29,6 @@ public class StationTrack extends Track
   }
   
   /**
-   * addTrain() method:
-   *
-   * @param train: train to be added to arrayList
-   *               No output
-   *               <p>
-   *               Adds a train to train array list at station
-   */
-//  synchronized
-  void addTrain(Train train)
-  {
-    trains.add(train);
-    System.out.println(train.getName() + " was added to " + getName());
-    train.setCurrentTrack(this);
-    train.setDirection(initDirection());
-  }
-  
-  /**
    * getName() method:
    * No parameters
    *
@@ -55,19 +39,20 @@ public class StationTrack extends Track
     return name;
   }
   
-  @Override
-  //synchronized
-  void sendMessage(Message msg)
+  /**
+   * addTrain() method:
+   *
+   * @param train: train to be added to arrayList
+   *               No output
+   *               <p>
+   *               Adds a train to train array list at station
+   */
+  void addTrain(Train train)
   {
-    Train train = findTrain(msg.recipient);
-    if (train != null)
-    {
-      train.receiveMessage(msg);
-    }
-    else
-    {
-      super.sendMessage(msg);
-    }
+    trains.add(train);
+    System.out.println(train.getName() + " was added to " + getName());
+    train.setCurrentTrack(this);
+    train.setDirection(initDirection());
   }
   
   /**
@@ -80,7 +65,6 @@ public class StationTrack extends Track
    *             Passes message to next track
    */
   @Override
-//  synchronized
   void readMessage(Message msg)
   {
     msg.print(getX(), getY());
@@ -120,17 +104,35 @@ public class StationTrack extends Track
         {
           addToOutGoing(new Message(msg.sender, MessageType.NOTFOUND, msg.recipient, msg.msgDir.getOpposite(), msg.correspondenceID));
         }
-          
+        
         else
         {
           addToOutGoing(msg);
         }
       }
     }
-
+    
     else
     {
       super.readMessage(msg);
+    }
+  }
+  
+  /**
+   * Sends the given message to the train it is addressed, to the next track, or off into the dark digital abyss that is "null"
+   * @param msg
+   */
+  @Override
+  void sendMessage(Message msg)
+  {
+    Train train = findTrain(msg.recipient);
+    if (train != null)
+    {
+      train.receiveMessage(msg);
+    }
+    else
+    {
+      super.sendMessage(msg);
     }
   }
   
@@ -142,7 +144,6 @@ public class StationTrack extends Track
    * If a train is at the station, train is added to trains
    */
   @Override
-//  synchronized
   void moveTrain()
   {
     if (getTrain() != null)
@@ -166,9 +167,7 @@ public class StationTrack extends Track
    * @param trainName: train name of train to be found at station
    * @return train if train is at station
    */
-  private
-//  synchronized
-  Train findTrain(String trainName)
+  private Train findTrain(String trainName)
   {
     for (Train train : trains)
     {
@@ -184,9 +183,7 @@ public class StationTrack extends Track
    *
    * @return Direction train must travel
    */
-  private
-//  synchronized
-  Direction initDirection()
+  private Direction initDirection()
   {
     if (getNextTrack(Direction.RIGHT) == null)
     {
@@ -197,13 +194,4 @@ public class StationTrack extends Track
       return Direction.RIGHT;
     }
   }
-  
-  //  @Override
-  //  synchronized void freeTrack(Message msg)
-  //  {
-  //    if(getNextTrack(msg.msgDir) != null)
-  //    {
-  //      super.freeTrack(msg);
-  //    }
-  //  }
 }

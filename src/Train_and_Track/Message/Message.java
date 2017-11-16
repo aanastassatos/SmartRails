@@ -1,21 +1,20 @@
 /**
- * Message class
+ * Message class used by the tracks and the train to convey information to each other
  */
 package Train_and_Track.Message;
 
 import GUI.TrackMaker;
 import SmartRails.*;
 import Train_and_Track.StationTrack;
-import Train_and_Track.SwitchTrack;
 import Train_and_Track.Train;
 
 public class Message
 {
   public String sender; //Train name of sender of message
   public String recipient; //StationTrack of destination
-  public MessageType messageType;
+  public MessageType messageType;  //The type of message this is.
   public Direction msgDir; //Direction to send the message
-  public int correspondenceID;
+  public int correspondenceID;  //The id of this message for correspondence sorting
 
   /**
    * Message constructor:
@@ -34,11 +33,11 @@ public class Message
   }
 
   /**
-   * isRecipient() method:
+   * Checks if the given object is the recipient of this message.
    * @param obj:
    * @return true if obj is intended recipient
    */
-  public synchronized boolean isRecipient(Object obj)
+  public boolean isRecipient(Object obj)
   {
     if(obj != null)
     {
@@ -56,22 +55,12 @@ public class Message
     return false;
   }
   
-  public String getRecipient()
-  {
-    return recipient;
-  }
-  
-  public String getSender()
-  {
-    return sender;
-  }
-  
   /**
-   * print() method:
-   * @param x: x coordinate
+   * Prints a visual representation of this message and the current location of it.
+   * @param x
    * @param y
    */
-  public synchronized void print(double x, double y)
+  public void print(double x, double y)
   {
     System.out.println("Location: X:"+x/ TrackMaker.IMAGE_HEIGHT+", Y:"+y/TrackMaker.IMAGE_WIDTH+"\n" +
                        "Sender: "+sender+"\n" +
@@ -80,7 +69,11 @@ public class Message
                        "Direction: "+msgDir+"\n");
   }
   
-  public synchronized Message changeDirection()
+  /**
+   * Returns the same message except going the opposite direction
+   * @return
+   */
+  public Message changeDirection()
   {
     return new Message(sender, messageType, recipient, msgDir.getOpposite(), correspondenceID);
   }

@@ -7,7 +7,7 @@ package Train_and_Track;
 
 public class Line
 {
-  private StationTrack startPoint;
+  private StationTrack startPoint; //Start po
   private StationTrack endPoint;
 
   /**
@@ -21,11 +21,19 @@ public class Line
     this.endPoint = endPoint;
   }
   
+  /**
+   * Adds given train to the start point of the line.
+   * @param train
+   */
   public void addTrainToStartPoint(Train train)
   {
     startPoint.addTrain(train);
   }
   
+  /**
+   * Adds given train to the end point of the line.
+   * @param train
+   */
   public void addTrainToEndPoint(Train train)
   {
     endPoint.addTrain(train);

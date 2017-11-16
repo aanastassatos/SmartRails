@@ -19,6 +19,8 @@ public class SmartRails implements Runnable
 {
   private ArrayList<Train> trains;
   private boolean running;
+  private String destination;
+
 
   /**
    * SmartRails constructor:
@@ -30,6 +32,11 @@ public class SmartRails implements Runnable
   public SmartRails(ArrayList<Train> trains)
   {
     this.trains = trains;
+  }
+
+  public void setDestination(String destination)
+  {
+    this.destination = destination;
   }
 
   /**
@@ -53,10 +60,8 @@ public class SmartRails implements Runnable
 //    schedule1.add("A1");
 //    schedule1.add("B2");
 //    schedule1.add("A3");
-    schedule1.add("B0");
-    schedule2.add("A0");
-    trains.get(0).setSchedule(schedule1);
-    trains.get(1).setSchedule(schedule2);
+//    trains.get(0).setSchedule(schedule1);
+//    trains.get(1).setSchedule(schedule2);
     trains.get(0).receiveMessage(new Message(null, MessageType.START, null, null, -1));
     //trains.get(1).receiveMessage(new Message(null, MessageType.START, null, null, -1));
   }

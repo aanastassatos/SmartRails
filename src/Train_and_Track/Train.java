@@ -21,9 +21,10 @@ public class Train implements Runnable
   private String name;  //Train name
   private TrainView trainView; //Draw/redraw train
   private String destination; //Station destination for train
-  private LinkedBlockingQueue<Message> messages; //All messages to be executed
   private LinkedList<String> schedule;
   private String startStation;
+  private LinkedBlockingQueue<Message> incomingMessages;
+  private LinkedBlockingQueue<Message> outgoingMessages;
 
   /**
    * Train constructor:
@@ -37,7 +38,8 @@ public class Train implements Runnable
   public Train(String name)
   {
     this.name = name;
-    messages = new LinkedBlockingQueue<>();
+    incomingMessages = new LinkedBlockingQueue<>();
+    outgoingMessages = new LinkedBlockingQueue<>();
     schedule = new LinkedList<>();
     new Thread(this).start();
   }
@@ -60,7 +62,7 @@ public class Train implements Runnable
     if(destination != null)
     {
       startStation = ((StationTrack) currentTrack).getName();
-      sendMessage(new Message(name, MessageType.SEARCH, destination, direction, Integer.parseInt(name)));
+      addToOutGoing(new Message(name, MessageType.SEARCH, destination, direction, Integer.parseInt(name)));
     }
   }
   /**
@@ -77,7 +79,7 @@ public class Train implements Runnable
     
     if(msg.messageType == MessageType.SEARCH || msg.messageType == MessageType.SECURE || msg.messageType == MessageType.MOVE)
     {
-      sendMessage(new Message(name, msg.messageType, msg.sender, direction, msg.correspondenceID));
+      addToOutGoing(new Message(name, msg.messageType, msg.sender, direction, msg.correspondenceID));
     }
     
     else
@@ -85,16 +87,16 @@ public class Train implements Runnable
       switch (msg.messageType)
       {
         case FOUND:
-          sendMessage(new Message(name, MessageType.SECURE, msg.sender, direction, msg.correspondenceID));
+          addToOutGoing(new Message(name, MessageType.SECURE, msg.sender, direction, msg.correspondenceID));
           break;
     
         case SECURED:
           currentTrack.setTrain(this);
-          sendMessage(new Message(name, MessageType.MOVE, msg.sender, direction, msg.correspondenceID));
+          addToOutGoing(new Message(name, MessageType.MOVE, msg.sender, direction, msg.correspondenceID));
           break;
     
         case ARRIVED:
-          sendMessage(new Message(name, MessageType.FREE, startStation, direction, msg.correspondenceID));
+          addToOutGoing(new Message(name, MessageType.FREE, startStation, direction, msg.correspondenceID));
           break;
     
         case FREED:
@@ -122,7 +124,13 @@ public class Train implements Runnable
   //synchronized
   void receiveMessage(Message msg)
   {
-    messages.add(msg);
+    try
+    {
+      incomingMessages.put(msg);
+    } catch (InterruptedException e)
+    {
+      e.printStackTrace();
+    }
   }
 
   /**
@@ -221,28 +229,19 @@ public class Train implements Runnable
     
     trainView.move(x, y);
   }
-
-  /**
-   * readNextMessage() method:
-   * No parameters
-   * No output
-   *
-   *                    Pulls message from top of messages
-   *                    queue, removes message from queue, and reads
-   *                    message
-   */
+  
   private
-  //synchronized
-  void readNextMessage()
+  void addToOutGoing(Message msg)
   {
-    Message msg = messages.poll();
-    messages.remove(msg);
-    if(msg != null)
+    try
     {
-      readMessage(msg);
+      outgoingMessages.put(msg);
+    } catch (InterruptedException e)
+    {
+      e.printStackTrace();
     }
   }
-
+  
   /**
    * run() method from Runnable interface
    *
@@ -260,7 +259,22 @@ public class Train implements Runnable
 //      {
 //        e.printStackTrace();
 //      }
-      readNextMessage();
+      try
+      {
+        Message msg = incomingMessages.take();
+        if(msg != null)
+        {
+          readMessage(msg);
+        }
+        
+        msg = outgoingMessages.take();
+        
+        sendMessage(msg);
+      } catch (InterruptedException e)
+      {
+        e.printStackTrace();
+      }
+  
       //      try{
       //        Thread.sleep(50);
       //      } catch (InterruptedException e)

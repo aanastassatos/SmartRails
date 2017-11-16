@@ -318,11 +318,6 @@ public class Track implements Runnable
           locked = true;
           lockedBy = msg.correspondenceID;
         }
-        
-        else
-        {
-          addToOutGoing(new Message(msg.getRecipient(), msg.messageType, msg.sender, msg.msgDir.getOpposite(), msg.correspondenceID));
-        }
   
         if(msg.correspondenceID == -1 || (locked && lockedBy == msg.correspondenceID) || !locked ||
             msg.messageType == MessageType.FOUND || msg.messageType == MessageType.NOTFOUND || msg.messageType == MessageType.FREED)
@@ -332,6 +327,11 @@ public class Track implements Runnable
             findCorrespondence(msg).addMessage(msg);
           }
           readMessage(msg);
+        }
+
+        else
+        {
+          addToOutGoing(new Message(msg.getRecipient(), msg.messageType, msg.sender, msg.msgDir.getOpposite(), msg.correspondenceID));
         }
         
         msg = outgoingMessages.take();

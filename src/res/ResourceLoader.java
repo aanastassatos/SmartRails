@@ -1,6 +1,8 @@
 package res;
 
 import javafx.scene.image.Image;
+import javafx.scene.media.Media;
+import javafx.scene.media.MediaPlayer;
 
 import java.io.BufferedInputStream;
 import java.io.File;
@@ -34,5 +36,17 @@ public class ResourceLoader
     InputStream trackMap = rl.getClass().getResourceAsStream("TrackMap.txt");
     InputStreamReader stream = new InputStreamReader(trackMap);
     return stream;
+  }
+
+  public static MediaPlayer getMediaPlayer()
+  {
+    String musicFile = ResourceLoader.class.getResource("ThomasTheTank.mp3").toString();
+    Media sound = new Media(musicFile);
+    return new MediaPlayer(sound);
+  }
+
+  public static Image getTitle(String filename, int width, int height)
+  {
+    return getImage(filename + ".png", width, height);
   }
 }

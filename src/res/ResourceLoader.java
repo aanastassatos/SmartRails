@@ -72,7 +72,7 @@ public class ResourceLoader
    */
   public static MediaPlayer getMediaPlayer()
   {
-    String musicFile = ResourceLoader.class.getResource("ThomasTheTank.mp3").toString();
+    String musicFile = ResourceLoader.class.getResource("music/ThomasTheTank.mp3").toString();
     Media sound = new Media(musicFile);
     return new MediaPlayer(sound);
   }

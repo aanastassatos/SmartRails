@@ -25,18 +25,20 @@ Entry point is in SmartRailsWindow class.
 to help with debugging.
 
 3.  Project distribution:
-Alex: - Created track images
-      - Finished messaging system
-      - Created correspondences
-      - Thread creation
+Alex: 
+ - Created track images
+ - Finished messaging system
+ - Created correspondences
+ - Thread creation
       
-Cat:  - Opening scene
-      - Station images
-      - Schedule scene
-      - Worked on messaging system
+Cat:  
+ - Opening scene
+ - Station images
+ - Schedule scene
+ - Worked on messaging system
       
 Third Party Content:
-      - Thomas the Tank theme song plays throughout
+ - Thomas the Tank theme song plays throughout
       
 4.  Known Bugs and Issues:
     Sometimes threads spawn errors during train travel.  If this happens please run again.  We haven't found
